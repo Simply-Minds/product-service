@@ -34,7 +34,7 @@ cd product-service
 ### 2. Update Application Properties
 Update the application.yml or application.properties file with your database credentials:
 
-```json
+```properties
 # Spring Boot Configuration
 server.port=8080
 
