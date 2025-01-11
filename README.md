@@ -35,21 +35,25 @@ cd product-service
 Update the application.yml or application.properties file with your database credentials:
 
 ```properties
-# Spring Boot Configuration
+# Spring Boot Application Configuration
+spring.application.name=product-service
 server.port=8080
 
-# Database Configuration
-#spring.datasource.url=jdbc:postgresql://localhost:5432/product
-#spring.datasource.username=<your-db-username>
-#spring.datasource.password=<your-db-password>
+# Database Configuration (MySQL)
+spring.datasource.url=jdbc:mysql://localhost:3306/product_service?useSSL=false&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=#replace with database password
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-# Swagger Configuration
-springdoc.api-docs.path=/api-docs
-springdoc.swagger-ui.path=/swagger-ui.html
+# Hibernate JPA Configuration
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
-# Logging Configuration
-logging.level.org.springframework=INFO
-logging.level.com.simplyminds.productservice=DEBUG
+# Logging
+logging.level.org.hibernate.SQL=DEBUG
+logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+
 
 # Optional: Cache Configuration (if Redis is used in the future)
 ```
@@ -67,3 +71,40 @@ logging.level.com.simplyminds.productservice=DEBUG
 
 Example: IOMS-1005: Updated README.md for product-service.
 ```
+
+### Using profiled application properties file
+
+#### Development Profile: application-dev.properties
+
+```properties
+# Spring Boot Application Configuration
+spring.application.name=product-service-dev
+server.port=8081
+
+# Database Configuration (Development - Local MySQL)
+spring.datasource.url=jdbc:mysql://localhost:3306/product_service_dev?useSSL=false&serverTimezone=UTC
+spring.datasource.username=dev_user
+spring.datasource.password=#database paaword
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# Hibernate JPA Configuration
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+
+# Logging Configuration
+logging.level.root=INFO
+logging.level.org.springframework.web=DEBUG
+
+# Optional: Cache Configuration (if Redis is used in the future)
+```
+
+#### Enable Profiles in application.properties
+
+o switch between profiles (e.g., dev, prod), you can specify the active profile in the application.properties or as a runtime parameter.
+
+```properties
+# Active Profile
+spring.profiles.active=dev
+```
+
