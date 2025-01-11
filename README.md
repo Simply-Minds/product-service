@@ -101,7 +101,7 @@ logging.level.org.springframework.web=DEBUG
 
 #### Enable Profiles in application.properties
 
-o switch between profiles (e.g., dev, prod), you can specify the active profile in the application.properties or as a runtime parameter.
+To switch between profiles (e.g., dev, prod), you can specify the active profile in the application.properties or as a runtime parameter.
 
 ```properties
 # Active Profile
