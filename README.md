@@ -53,3 +53,17 @@ logging.level.com.simplyminds.productservice=DEBUG
 
 # Optional: Cache Configuration (if Redis is used in the future)
 ```
+
+## Development Guidelines
+
+### Code Quality
+
+- Follow SOLID principles and use design patterns wherever applicable.
+- Write unit tests for all service and repository layers.
+
+### Commit Message Format
+```shell
+<ticket-ID>: Meaningful message describing the change.
+
+Example: IOMS-1005: Updated README.md for product-service.
+```
