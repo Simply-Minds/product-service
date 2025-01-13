@@ -62,6 +62,18 @@ jobs:
         env:
           MAVEN_OPTS: "-Xmx1024m -XX:MaxMetaspaceSize=256m"
 
+       # Step 6: Login to docker hub
+      - name: Login to docker hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 7: Build docker image
+      - name: Build docker image
+        run: docker build -t abhishekra19/product-service .
+
+      # Step 8: Publish image to docker hub
+      - name: Publish image to docker hub
+        run: docker push abhishekra19/product-service:latest
+
   sonarcloud-analysis:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
@@ -93,3 +105,4 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ vars.PROJECT_KEY }}
+
