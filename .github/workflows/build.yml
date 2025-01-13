@@ -1,5 +1,4 @@
 # GitHub Actions Workflow: CI/CD for Spring Boot
-
 name: CI/CD for Spring Boot
 
 # Define when this workflow should be triggered
@@ -23,15 +22,17 @@ permissions:
 
 # Define jobs for this workflow
 jobs:
-  # Job 1: Checkout Code
-  validate-commit-message:
-    name: Validate Commit Message
+  # Job 1: Build and Test with Maven
+  build-and-test:
+    name: Build and Test with Maven
     runs-on: ubuntu-latest   # Use the latest Ubuntu runner for this job
 
     steps:
+      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
+      # Step 2: Validate commit message format
       - name: Validate commit message
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
@@ -41,27 +42,15 @@ jobs:
             echo "Error: Invalid commit message format."
             exit 1
           fi
-       
 
-  # Job 3: Build and Test with Maven
-  build-and-test:
-    name: Build and Test with Maven
-    runs-on: ubuntu-latest   # Use the latest Ubuntu runner for this job
-    needs: validate-commit-message  # Run this job after validate-commit-message job
-
-    steps:
-    
-      # Step 1:  Checkout Code
-      - name: Checkout code
-        uses: actions/checkout@v3
-      # Step 2: Set up JDK for the project
+      # Step 3: Set up JDK for the project
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: "temurin"
           java-version: "17"  # Set the JDK version to 17
 
-      # Step 3: Cache Maven dependencies
+      # Step 4: Cache Maven dependencies
       - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
@@ -70,17 +59,29 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2
 
-      # Step 4: Build and test the application with Maven
+      # Step 5: Build and test the application with Maven
       - name: Build and test
         run: mvn clean install
         env:
           MAVEN_OPTS: "-Xmx1024m -XX:MaxMetaspaceSize=256m"
 
-  # Job 4: SonarCloud Analysis
+      # Step 6: Log in to Docker Hub
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 7: Build a Docker image for the application
+      - name: Build Docker image
+        run: docker build -t abhishekra19/product-service .
+
+      # Step 8: Push the Docker image to Docker Hub
+      - name: Publish Docker image to Docker Hub
+        run: docker push abhishekra19/product-service:latest
+
+  # Job 2: SonarCloud Analysis
   sonarcloud-analysis:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest     # Use the latest Ubuntu runner for this job
-    needs: build-and-test      # Run this job after the build-and-test job succeeds
+    needs: build-and-test      # Run this job only after the build-and-test job succeeds
     if: ${{ vars.SONAR_ENABLED == 'true' }}  # Skip this job if SONAR_ENABLED is not true
 
     steps:
@@ -118,39 +119,10 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Use the SonarCloud token from secrets
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ vars.PROJECT_KEY }}
 
-  # Job 5: Build Docker Image
-  build-docker-image:
-    name: Build Docker Image
-    runs-on: ubuntu-latest   # Use the latest Ubuntu runner for this job
-    needs: build-and-test    # Run this job after build-and-test job
-
-    steps:
-      # Step 1:  Checkout Code
-      - name: Checkout code
-        uses: actions/checkout@v3
-        
-      # Step 1: Log in to Docker Hub
-      - name: Login to Docker Hub
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-
-      # Step 2: Build a Docker image for the application
-      - name: Build Docker image
-        run: docker build -t abhishekra19/product-service .
-
-  # Job 6: Push Docker Image to Docker Hub
-  push-docker-image:
-    name: Push Docker Image to Docker Hub
-    runs-on: ubuntu-latest   # Use the latest Ubuntu runner for this job
-    needs: build-docker-image # Run this job after build-docker-image job
-
-    steps:
-      - name: Publish Docker image to Docker Hub
-        run: docker push abhishekra19/product-service:latest
-
-  # Job 7: Deploy to EC2
+  # Job 3: Deploy to EC2
   deploy-to-ec2:
     name: Deploy to EC2
-    needs: push-docker-image      # Run this job only after the push-docker-image job succeeds
+    needs: build-and-test      # Run this job only after the build-and-test job succeeds
     runs-on: [aws-ec2]         # Use a self-hosted runner on an EC2 instance
 
     steps:
