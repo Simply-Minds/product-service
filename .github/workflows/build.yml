@@ -58,6 +58,7 @@ jobs:
 
       # Step 5: Build and test with Maven (Ensure target/classes is generated)
       - name: Build and test
-        run: mvn clean install  # Using install ensures that the classes are generated
+        run: mvn clean install ${SKIP_TESTS:+-DskipTests}  # Skip tests if SKIP_TESTS is set
         env:
-          MAVEN_OPTS: "-Xmx1024m -XX:MaxMetaspaceSize=256m"  # Updated memory settings for Java 17
+          MAVEN_OPTS: "-Xmx1024m -XX:MaxMetaspaceSize=256m"
+          SKIP_TESTS: ${{ secrets.SKIP_TESTS }}  # Set to 'true' to skip tests, otherwise leave it empty or remove the line to enable tests
