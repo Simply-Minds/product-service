@@ -24,21 +24,14 @@ permissions:
 # Define jobs for this workflow
 jobs:
   # Job 1: Checkout Code
-  checkout-code:
-    name: Checkout Code
+  validate-commit-message:
+    name: Validate Commit Message
     runs-on: ubuntu-latest   # Use the latest Ubuntu runner for this job
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-  # Job 2: Validate Commit Message
-  validate-commit-message:
-    name: Validate Commit Message
-    runs-on: ubuntu-latest   # Use the latest Ubuntu runner for this job
-    needs: checkout-code     # Run this job after checkout-code job
-
-    steps:
+        
       - name: Validate commit message
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
@@ -48,6 +41,7 @@ jobs:
             echo "Error: Invalid commit message format."
             exit 1
           fi
+       
 
   # Job 3: Build and Test with Maven
   build-and-test:
@@ -56,14 +50,18 @@ jobs:
     needs: validate-commit-message  # Run this job after validate-commit-message job
 
     steps:
-      # Step 1: Set up JDK for the project
+    
+      # Step 1:  Checkout Code
+      - name: Checkout code
+        uses: actions/checkout@v3
+      # Step 2: Set up JDK for the project
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: "temurin"
           java-version: "17"  # Set the JDK version to 17
 
-      # Step 2: Cache Maven dependencies
+      # Step 3: Cache Maven dependencies
       - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
@@ -72,7 +70,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2
 
-      # Step 3: Build and test the application with Maven
+      # Step 4: Build and test the application with Maven
       - name: Build and test
         run: mvn clean install
         env:
@@ -148,7 +146,7 @@ jobs:
   # Job 7: Deploy to EC2
   deploy-to-ec2:
     name: Deploy to EC2
-    needs: build-and-test      # Run this job only after the build-and-test job succeeds
+    needs: push-docker-image      # Run this job only after the push-docker-image job succeeds
     runs-on: [aws-ec2]         # Use a self-hosted runner on an EC2 instance
 
     steps:
