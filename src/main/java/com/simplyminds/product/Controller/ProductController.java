@@ -67,6 +67,9 @@ public class ProductController {
             if (categoryId != null) {
                 System.out.print("category id : "+categoryId+","+page+","+size);
                     PaginatedDTO<List<ProductDTO>> products  = productService.getFilterListByCategory(categoryId, page, size, sortBy, ascending);
+                if (products == null) {
+                    return new ResponseDTO<>(false,null  , 404, "products not found");
+                }
                 return new ResponseDTO<>(true,products  , null, null);
             } else {
                 throw new IllegalArgumentException("Either categoryId or categoryName must be provided.");
@@ -92,6 +95,9 @@ public class ProductController {
                 throw new IllegalArgumentException("sortBy can not be null");
             }
             PaginatedDTO<List<ProductDTO>> products  = productService.getFilterListByLowStock( page, size, sortBy, ascending);
+            if (products == null) {
+                return new ResponseDTO<>(false,null  , 404, "products not found");
+            }
             return new ResponseDTO<>(true,products  , null, null);
         }catch (Exception ex){
             throw new RuntimeException("Internal server error: " + ex);
