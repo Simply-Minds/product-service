@@ -85,6 +85,9 @@ public class ProductController {
     {
         try {
 
+            if (page < 0 || size < 0) {
+                throw new IllegalArgumentException("Page and size must be greater than 0.");
+            }
             if (sortBy==null) {
                 throw new IllegalArgumentException("sortBy can not be null");
             }
