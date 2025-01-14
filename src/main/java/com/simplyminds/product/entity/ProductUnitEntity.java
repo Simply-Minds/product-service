@@ -1,10 +1,10 @@
-package com.simplyminds.product.Model;
+package com.simplyminds.product.entity;
 
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "product_unit")
-public class ProductUnit {
+public class ProductUnitEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_unit_id")
@@ -16,8 +16,8 @@ public class ProductUnit {
     // final output :- kilogram(kg)
     // we can use uppercase lowercase conversion as need
 
-    public ProductUnit(){}
-    public ProductUnit(Long productUnitId, String unit_name, String unit_spec) {
+    public ProductUnitEntity(){}
+    public ProductUnitEntity(Long productUnitId, String unit_name, String unit_spec) {
         this.productUnitId = productUnitId;
         this.unit_name = unit_name;
         this.unit_spec = unit_spec;

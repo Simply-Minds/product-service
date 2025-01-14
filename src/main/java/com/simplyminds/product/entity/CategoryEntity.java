@@ -1,13 +1,17 @@
-package com.simplyminds.product.Model;
+package com.simplyminds.product.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "category")
-public class Category {
+@Data
+@Builder
+public class CategoryEntity {
 
     @Id
     @GeneratedValue(generator = "UUID") // Use the UUID generator
@@ -17,9 +21,9 @@ public class Category {
     private String name;
     private String description;
 
-    public Category(){}
+    public CategoryEntity(){}
 
-    public Category(UUID categoryId, String name, String description) {
+    public CategoryEntity(UUID categoryId, String name, String description) {
         this.categoryId = categoryId;
         this.name = name;
         this.description = description;
