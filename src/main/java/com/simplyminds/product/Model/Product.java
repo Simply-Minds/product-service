@@ -1,12 +1,10 @@
 package com.simplyminds.product.Model;
 
-import com.simplyminds.product.Repository.ProductRepository;
 import jakarta.persistence.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 
 @Entity
@@ -19,12 +17,14 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Long productId;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", referencedColumnName = "category_id")
     private Category category;
+
     @ManyToOne
     @JoinColumn(name = "product_unit_id", referencedColumnName = "product_unit_id")
     private ProductUnit productUnit;
+
 
     //primary details
     private String name;
@@ -38,22 +38,23 @@ public class Product {
     //secondary details
     private String description;
     @Column(name = "reorder_level")
-    private Integer reorderLevel;
+    private Integer reorderLevel = 1;
     @Column(name = "image_url")
     private String imageUrl;
     private String brand;
     private double weight;
     private String dimensions;
     private String color;
-    @ElementCollection
-    private List<String> tags;
+
+    private String tags;
 
     public Product(){}
 
-    public Product(Long productId, Category category, ProductUnit productUnit, String name, String SKU, BigDecimal price, Integer quantityInStock, String status, String description, Integer reorderLevel, String imageUrl, String brand, double weight, String dimensions, String color, List<String> tags) {
+    public Product(Long productId, Category category, ProductUnit productUnit, String name, String SKU, BigDecimal price, Integer quantityInStock, String status, String description, Integer reorderLevel, String imageUrl, String brand, double weight, String dimensions, String color, String tags) {
         this.productId = productId;
-        this.category = category;
-        this.productUnit = productUnit;
+
+        this.category = new Category();
+        this.productUnit = new ProductUnit();
         this.name = name;
         this.SKU = SKU;
         this.price = price;
@@ -68,6 +69,8 @@ public class Product {
         this.color = color;
         this.tags = tags;
     }
+
+
 
     public Long getProductId() {
         return productId;
@@ -189,11 +192,11 @@ public class Product {
         this.color = color;
     }
 
-    public List<String> getTags() {
+    public String getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(String tags) {
         this.tags = tags;
     }
 }

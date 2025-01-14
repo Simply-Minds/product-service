@@ -2,6 +2,8 @@ package com.simplyminds.product.Model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "product_unit")
 public class ProductUnit {
@@ -9,6 +11,8 @@ public class ProductUnit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_unit_id")
     private Long productUnitId;
+    @OneToMany(mappedBy = "productUnit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Product> products;
     private String unit_name;
     private String unit_spec;
     // unit :- kilogram
@@ -17,18 +21,27 @@ public class ProductUnit {
     // we can use uppercase lowercase conversion as need
 
     public ProductUnit(){}
-    public ProductUnit(Long productUnitId, String unit_name, String unit_spec) {
+    public ProductUnit(Long productUnitId, String unit_name, String unit_spec,List<Product> products) {
         this.productUnitId = productUnitId;
         this.unit_name = unit_name;
         this.unit_spec = unit_spec;
+        this.products = products;
     }
 
-    public Long getProductUniIdl() {
+    public Long getProductUnitId() {
         return productUnitId;
     }
 
-    public void setProductUniIdl(Long productUniIdl) {
-        this.productUnitId = productUniIdl;
+    public void setProductUnitId(Long productUnitId) {
+        this.productUnitId = productUnitId;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
     public String getUnit_name() {
