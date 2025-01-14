@@ -6,6 +6,8 @@ import org.hibernate.annotations.GenericGenerator;
 import java.util.List;
 import java.util.UUID;
 
+// class for providing feature to organize products or inventory in small chunks(category)
+
 @Entity
 @Table(name = "category")
 public class Category {

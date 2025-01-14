@@ -20,6 +20,20 @@ public class ProductController {
     @Autowired
     ProductService productService;
 
+    /**
+     * Retrieves a List of products with pagination and sorting support.
+     *
+     * @param page The no of page to retrieve.
+     * @param size The no of elements(objects) per page.
+     * @param sortBy to sort page by.
+     * @param ascending The direction of objects [ascending or descending].
+     * @return The list of products if found; otherwise, returns response with error code, message,data=null.
+     * @throws IllegalArgumentException if the @Param page and size, sortBy are invalid .
+     * @throws RuntimeException if error in server or an exceptional error
+     * @since 1.0
+     */
+
+
     // default data without any external filters
     @GetMapping("/products")
     public ResponseDTO<Object> getAllProducts(@RequestParam(defaultValue = "0") int page,
@@ -47,6 +61,20 @@ public class ProductController {
         }
 
     }
+
+    /**
+     * Retrieves a List of products with pagination and sorting support.
+     *@param categoryId The filter to apply (find products by category).
+     * @param page The no of page to retrieve.
+     * @param size The no of elements(objects) per page.
+     * @param sortBy to sort page by.
+     * @param ascending The direction of objects [ascending or descending].
+     * @return The list of products with filter applied if found; otherwise, returns response with error code, message,data=null.
+     * @throws IllegalArgumentException if the @Param page and size, sortBy are invalid .
+     * @throws RuntimeException if error in server or an exceptional error
+     * @since 1.0
+     */
+
 
     @GetMapping("/products/filter/byCategory")
     public ResponseDTO<Object> getProducts(
@@ -79,6 +107,18 @@ public class ProductController {
         }
     }
 
+    /**
+     * Retrieves a List of products with pagination and sorting support.
+     * @param page The no of page to retrieve.
+     * @param size The no of elements(objects) per page.
+     * @param sortBy to sort page by.
+     * @param ascending The direction of objects [ascending or descending].
+     * @return The list of products with filter applied if found; otherwise, returns response with error code, message,data=null.
+     * @throws IllegalArgumentException if the @Param page and size, sortBy are invalid .
+     * @throws RuntimeException if error in server or an exceptional error
+     * @since 1.0
+     */
+
     @GetMapping("/products/filter/lowStock")
     public ResponseDTO<Object> getProductByCategory (
     @RequestParam(defaultValue = "0") int page,
@@ -105,18 +145,7 @@ public class ProductController {
 
 
     }
-    @Autowired
-    ProductRepository productRepository;
-    @Autowired
-    CategoryRepository categoryRepository;
 
-    @PostMapping("/add")
-    public Product addproduct(@RequestBody Product product){
-
-        Category savedCategory = categoryRepository.save(product.getCategory());
-        product.setCategory(savedCategory);
-        return productRepository.save(product);
-    }
 
 
 

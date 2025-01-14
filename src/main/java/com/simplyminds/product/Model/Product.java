@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 
+
+
 @Entity
 @Table(name = "product")
 public class Product {

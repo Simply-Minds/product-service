@@ -2,6 +2,7 @@ package com.simplyminds.product.Model;
 
 import java.util.List;
 
+// A DTO class to handle the pagination response
 
 public class PaginatedDTO<T> {
     private T Objects;

@@ -1,5 +1,6 @@
 package com.simplyminds.product.Model;
 
+//  class for consistent response  through out the application
 
 public class ResponseDTO<T> {
     private Boolean success = true;

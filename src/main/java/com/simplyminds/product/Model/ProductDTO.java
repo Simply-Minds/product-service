@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+// class for returning only essential details instead of whole product data
 
 public class ProductDTO {
 

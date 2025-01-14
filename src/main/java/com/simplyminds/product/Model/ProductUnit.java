@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.util.List;
 
+// class for providing feature to add or chose existing unit of specific product
+
 @Entity
 @Table(name = "product_unit")
 public class ProductUnit {

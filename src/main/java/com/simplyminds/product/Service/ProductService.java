@@ -15,14 +15,36 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The ProductService class handles all operations related to products,
+ * including retrieving, adding, updating, and deleting products in the
+ * inventory system.
+ *
+ * <p>This class interacts with the ProductRepository to access the database and
+ * applies business logic before returning results to the calling service or controller.</p>
+ *
+ * <p><b>Example Usage:</b></p>
+ * <pre>
+ *
+ *      @Autowiered
+ *      ProductRepository productRepo;
+ *          Page<Product> productsPage = productRepo.findAll((org.springframework.data.domain.Pageable) pageable);
+ * </pre>
+ *
+ * @author [jeet]
+ * @version 1.0
+ * @since 2025-01-14
+ */
+
 @Service
 public class ProductService {
     @Autowired
     ProductRepository productRepository;
 
+    // methode for retrieving limited data
     public Page<Product> getProductsPage(int page, int size, String sortBy, boolean ascending) {
 
-        // add here the validation of sortby that the requested sorting is possible or not
+        // sorting by using sort class with two parameters sortBy,ascending
         Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
 
@@ -36,7 +58,7 @@ public class ProductService {
 
 
 
-    // general methode for creating and returning productDTO objects (final stage of api) from service.
+    // general methode for creating and returning productDTO objects instead of returning product
     public List<ProductDTO> getProductsDTO(List<Product> products) {
 
         List<ProductDTO> finalProducts = products.stream().map(product -> new ProductDTO(
@@ -62,7 +84,7 @@ public class ProductService {
             if(Objects.equals(product.getCategory().getCategoryId(), categoryId)&&product!=null){
 
                 filteredProducts.add(product);
-                System.out.println(product);
+
             }
 
         }
@@ -81,7 +103,7 @@ public class ProductService {
             if(product.getQuantityInStock()<=product.getReorderLevel()&&product!=null){
 
                 filteredProducts.add(product);
-                System.out.println(product);
+
             }
 
         }
@@ -91,53 +113,53 @@ public class ProductService {
         return getPaginatedProducts(filteredProducts, page,size,sortBy,ascendin);
     }
 
-    // filtered data by supplier ------ wil add soon
+    // filtered data by supplier ------ will add when service layer is added
 
 
-    //sorted data
-    public PaginatedDTO<List<ProductDTO>> getPaginatedProducts(List<Product> filteredProducts, int page, int size, String sortBy, boolean direction) {
+    //sorting the filtered list of products
+    public PaginatedDTO<List<ProductDTO>> getPaginatedProducts(List<Product> filteredProducts, int page, int size, String sortBy, boolean ascending) {
 
 
 
+        // cases of sorting
        if (Objects.equals(sortBy, "lowStock")) {
             // sorting based on Low Stock
             Comparator<Product> comparator = Comparator.comparing(product -> product.getQuantityInStock());
-            if (direction) {
+            if (ascending) {
                 comparator = comparator.reversed();
             }
             filteredProducts.sort(comparator);
         } else if (Objects.equals(sortBy, "price")) {
 
             Comparator<Product> comparator = Comparator.comparing(product -> product.getPrice());
-            if (direction) {
+            if (ascending) {
                 comparator = comparator.reversed();
             }
             filteredProducts.sort(comparator);
         } else if (Objects.equals(sortBy, "productId")) {
 
             Comparator<Product> comparator = Comparator.comparing(product -> product.getProductId());
-            if (direction) {
+            if (ascending) {
                 comparator = comparator.reversed();
             }
             filteredProducts.sort(comparator);
         }
 
-
-        // PAGINATION
+        // PAGINATION logic
+        // calculating essential variables
         int totalElements = filteredProducts.size();
         int totalPages = (int) Math.ceil((double) totalElements / size);
         int startIndex = page * size;
         int endIndex = Math.min(startIndex + size, totalElements);
-        System.out.println(totalElements+totalPages+startIndex+endIndex);
-        // return empty list if out of bound
+
+        // return empty list if index is out of bound
         if (startIndex >= totalElements) {
-            System.out.println("not true");
             return new PaginatedDTO<>(List.of(), totalElements, totalPages, page, size);
         }
         List<Product> paginatedProducts = filteredProducts.subList(startIndex, endIndex);
         // calling product dto
          List<ProductDTO> productDTOS  = getProductsDTO(paginatedProducts);
-        System.out.println(productDTOS);
+
         return new PaginatedDTO<>(productDTOS, totalElements, totalPages, page, size);
     }
 
