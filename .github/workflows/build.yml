@@ -5,52 +5,47 @@ name: CI/CD for Spring Boot
 on:
   push:
     branches:
-      - "master"            # Trigger on push to master branch
-      - "develop"           # Trigger on push to develop branch
-      - "feature-IOMS-**"   # Trigger on push to feature branches (e.g., feature-IOMS-1007)
+      - "master"
+      - "develop"
+      - "feature-IOMS-**"
   pull_request:
     branches:
-      - "master"            # Trigger on pull requests to master branch
-      - "develop"           # Trigger on pull requests to develop branch
-      - "feature-IOMS-**"   # Trigger on pull requests to feature branches
-  workflow_dispatch:         # Allow manual triggering of this workflow
+      - "master"
+      - "develop"
+      - "feature-IOMS-**"
+  workflow_dispatch:
 
 # Set default permissions
 permissions:
-  contents: read             # Allow read access to the repository contents
-  pull-requests: read        # Allow read access to pull request metadata (needed for SonarCloud PR decoration)
+  contents: read
+  pull-requests: read
 
 # Define jobs for this workflow
 jobs:
   # Job 1: Build and Test with Maven
   build-and-test:
     name: Build and Test with Maven
-    runs-on: ubuntu-latest   # Use the latest Ubuntu runner for this job
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Validate commit message format
       - name: Validate commit message
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
           echo "Commit message: $COMMIT_MSG"
-          # Ensure commit message follows the format: <ticket-ID>: Meaningful message
           if ! echo "$COMMIT_MSG" | grep -qE "^[A-Za-z0-9\-]+-[0-9]+: .+"; then
             echo "Error: Invalid commit message format."
             exit 1
           fi
 
-      # Step 3: Set up JDK for the project
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: "temurin"
-          java-version: "17"  # Set the JDK version to 17
+          java-version: "17"
 
-      # Step 4: Cache Maven dependencies
       - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
@@ -59,45 +54,38 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2
 
-      # Step 5: Build and test the application with Maven
       - name: Build and test
         run: mvn clean install
         env:
           MAVEN_OPTS: "-Xmx1024m -XX:MaxMetaspaceSize=256m"
 
-      # Step 6: Log in to Docker Hub
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 7: Build a Docker image for the application
       - name: Build Docker image
         run: docker build -t abhishekra19/product-service .
 
-      # Step 8: Push the Docker image to Docker Hub
       - name: Publish Docker image to Docker Hub
         run: docker push abhishekra19/product-service:latest
 
   # Job 2: SonarCloud Analysis
   sonarcloud-analysis:
     name: SonarCloud Analysis
-    runs-on: ubuntu-latest     # Use the latest Ubuntu runner for this job
-    needs: build-and-test      # Run this job only after the build-and-test job succeeds
-    if: ${{ vars.SONAR_ENABLED == 'true' }}  # Skip this job if SONAR_ENABLED is not true
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: ${{ vars.SONAR_ENABLED == 'true' }}
 
     steps:
-      # Step 1: Checkout the repository code
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0       # Disable shallow clones for accurate analysis
+          fetch-depth: 0
 
-      # Step 2: Set up JDK for Sonar analysis
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: 'zulu'
 
-      # Step 3: Cache SonarCloud analysis packages
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
@@ -105,7 +93,6 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      # Step 4: Cache Maven dependencies
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -113,27 +100,24 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Step 5: Run SonarCloud analysis
       - name: Build and analyze
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Use the SonarCloud token from secrets
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=${{ vars.PROJECT_KEY }}
 
   # Job 3: Deploy to EC2
   deploy-to-ec2:
     name: Deploy to EC2
-    needs: build-and-test      # Run this job only after the build-and-test job succeeds
-    runs-on: [aws-ec2]         # Use a self-hosted runner on an EC2 instance
+    needs: build-and-test
+    runs-on: [aws-ec2]
+    if: ${{ vars.DEPLOY_ENABLED == 'true' }}
 
     steps:
-      # Step 1: Pull the latest Docker image from Docker Hub
       - name: Pull Docker image
         run: docker pull abhishekra19/product-service:latest
 
-      # Step 2: Stop and remove the old container
       - name: Remove old container
-        run: docker rm -f product-service-container
+        run: docker rm -f product-service-container || true
 
-      # Step 3: Run the Docker container with the latest image
       - name: Run Docker container
         run: docker run -d -p 8080:8080 --name product-service-container abhishekra19/product-service
