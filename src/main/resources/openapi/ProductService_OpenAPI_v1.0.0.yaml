@@ -1,0 +1,332 @@
+openapi: 3.0.1
+info:
+  title: Product Catalog API
+  description: API for managing the product catalog with CRUD operations and standardized error handling.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development server
+paths:
+  /products:
+    get:
+      summary: Get a list of products
+      description: Retrieve a list of all products with support for filtering and pagination.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            example: 1
+          description: Page number for pagination (default is 1).
+        - in: query
+          name: size
+          schema:
+            type: integer
+            example: 10
+          description: Number of products per page (default is 10).
+        - in: query
+          name: category
+          schema:
+            type: string
+            example: "Electronics"
+          description: Filter products by category.
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "Laptop"
+          description: Search for products by name or SKU.
+      responses:
+        '200':
+          description: A list of products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponseDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '500':
+          description: Generic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+    post:
+      summary: Create a new product
+      description: Add a new product to the catalog.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '500':
+          description: Generic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+  /products/{id}:
+    get:
+      summary: Get a product by ID
+      description: Retrieve detailed information about a specific product by its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 101
+          description: The ID of the product.
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDTO'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '500':
+          description: Generic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+    put:
+      summary: Update a product by ID
+      description: Update an existing product’s details by its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 101
+          description: The ID of the product to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponseDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '500':
+          description: Generic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+    delete:
+      summary: Delete a product by ID
+      description: Remove a product from the catalog by its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 101
+          description: The ID of the product to delete.
+      responses:
+        '200':
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseDTO'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '500':
+          description: Generic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the product.
+          example: 101
+        name:
+          type: string
+          description: Name of the product.
+          example: "Laptop"
+        sku:
+          type: string
+          description: Stock Keeping Unit (SKU) of the product.
+          example: "LPT12345"
+        price:
+          type: number
+          format: float
+          description: Price of the product.
+          example: 599.99
+        description:
+          type: string
+          description: Description of the product.
+          example: "High-performance laptop."
+        quantityInStock:
+          type: integer
+          description: Number of items currently in stock.
+          example: 50
+        categoryId:
+          type: integer
+          description: ID of the category the product belongs to.
+          example: 10
+        reorderLevel:
+          type: integer
+          description: Minimum stock level to trigger a reorder.
+          example: 10
+        status:
+          type: string
+          description: Status of the product (e.g., "active", "discontinued").
+          example: "active"
+        imageUrl:
+          type: string
+          description: URL link to the product image.
+          example: "https://example.com/images/laptop.jpg"
+        brand:
+          type: string
+          description: Brand name of the product.
+          example: "Dell"
+        weight:
+          type: number
+          format: float
+          description: Weight of the product in kilograms.
+          example: 2.5
+        dimensions:
+          type: string
+          description: Dimensions of the product (e.g., "10x20x5 cm").
+          example: "10x20x5 cm"
+        color:
+          type: string
+          description: Primary color of the product.
+          example: "Silver"
+        supplierId:
+          type: integer
+          description: ID of the supplier providing the product.
+          example: 201
+        tags:
+          type: array
+          items:
+            type: string
+          description: List of tags associated with the product.
+          example: ["electronics", "laptop", "computing"]
+
+    ProductResponseDTO:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Product'
+        errorCode:
+          type: string
+          nullable: true
+          example: null
+        errorMessage:
+          type: string
+          nullable: true
+          example: null
+
+    ProductListResponseDTO:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        errorCode:
+          type: string
+          nullable: true
+          example: null
+        errorMessage:
+          type: string
+          nullable: true
+          example: null
+
+    ErrorResponseDTO:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        data:
+          type: object
+          example: null
+        errorCode:
+          type: string
+          example: "GENERR0001"
+        errorMessage:
+          type: string
+          example: "An unexpected error occurred."
+
+    SuccessResponseDTO:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          example: null
+        errorCode:
+          type: string
+          nullable: true
+          example: null
+        errorMessage:
+          type: string
+          nullable: true
+          example: null
