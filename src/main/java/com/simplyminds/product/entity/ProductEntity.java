@@ -8,18 +8,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ElementCollection;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "product")
-@Data
-@Builder
+@Setter
+@Getter
 public class ProductEntity {
 
     @Id
@@ -63,12 +64,12 @@ public class ProductEntity {
     private String dimensions;
     private String color;
 
-    @ElementCollection
-    private List<String> tags;
+    @Column(name = "tags")
+    private String tags;
 
-    public ProductEntity(){}
+    public ProductEntity() {}
 
-    public ProductEntity(Long productId, CategoryEntity categoryEntity, ProductUnitEntity productUnitEntity, String name, String SKU, BigDecimal price, Integer quantityInStock, String status, String description, Integer reorderLevel, String imageUrl, String brand, double weight, String dimensions, String color, List<String> tags) {
+    public ProductEntity(Long productId, CategoryEntity categoryEntity, ProductUnitEntity productUnitEntity, String name, String SKU, BigDecimal price, Integer quantityInStock, String status, String description, Integer reorderLevel, String imageUrl, String brand, double weight, String dimensions, String color, String tags) {
         this.productId = productId;
         this.categoryEntity = categoryEntity;
         this.productUnitEntity = productUnitEntity;
@@ -85,5 +86,21 @@ public class ProductEntity {
         this.dimensions = dimensions;
         this.color = color;
         this.tags = tags;
+    }
+
+    public List<String> getTags() {
+        if (tags == null || tags.isEmpty()) {
+            return List.of();  // Return an empty list if no tags are stored
+        }
+        return Arrays.asList(tags.split(","));  // Convert the comma-separated string back to a list
+    }
+
+    // Manually overriding setter for tags
+    public void setTags(List<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            this.tags = "";  // If the list is empty, store an empty string
+        } else {
+            this.tags = tags.stream().collect(Collectors.joining(","));  // Join the list into a single comma-separated string
+        }
     }
 }

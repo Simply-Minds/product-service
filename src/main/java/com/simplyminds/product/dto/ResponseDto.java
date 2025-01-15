@@ -25,14 +25,14 @@ public class ResponseDto<T> {
     /**
      * The error code, if the request failed.
      */
-    private Integer errorCode;
+    private String errorCode;
 
     /**
      * The error message, if the request failed.
      */
     private String errorMessage;
 
-    public ResponseDto(Boolean success, T data, Integer errorCode, String errorMessage) {
+    public ResponseDto(Boolean success, T data, String errorCode, String errorMessage) {
         this.success = success;
         this.data = data;
         this.errorCode = errorCode;

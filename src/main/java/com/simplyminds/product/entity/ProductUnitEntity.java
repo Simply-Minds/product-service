@@ -1,49 +1,29 @@
 package com.simplyminds.product.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "product_unit")
+@Getter
+@Setter
 public class ProductUnitEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_unit_id")
     private Long productUnitId;
-    private String unit_name;
-    private String unit_spec;
-    // unit :- kilogram
-    // spec :- kg
-    // final output :- kilogram(kg)
-    // we can use uppercase lowercase conversion as need
+
+    @Column(name = "unit_name")
+    private String unitName;
+
+    @Column(name = "unit_spec")
+    private String unitSpec;
 
     public ProductUnitEntity(){}
-    public ProductUnitEntity(Long productUnitId, String unit_name, String unit_spec) {
+    public ProductUnitEntity(Long productUnitId, String unitName, String unitSpec) {
         this.productUnitId = productUnitId;
-        this.unit_name = unit_name;
-        this.unit_spec = unit_spec;
-    }
-
-    public Long getProductUniIdl() {
-        return productUnitId;
-    }
-
-    public void setProductUniIdl(Long productUniIdl) {
-        this.productUnitId = productUniIdl;
-    }
-
-    public String getUnit_name() {
-        return unit_name;
-    }
-
-    public void setUnit_name(String unit_name) {
-        this.unit_name = unit_name;
-    }
-
-    public String getUnit_spec() {
-        return unit_spec;
-    }
-
-    public void setUnit_spec(String unit_spec) {
-        this.unit_spec = unit_spec;
+        this.unitName = unitName;
+        this.unitSpec = unitSpec;
     }
 }

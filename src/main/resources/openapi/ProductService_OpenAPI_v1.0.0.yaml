@@ -238,6 +238,11 @@ components:
           description: ID of the category the product belongs to.
           example: 10
           minimum: 1  # Ensure category ID is positive
+        productUnitId:
+          type: integer
+          description: ID of the product unit the product belongs to.
+          example: 10
+          minimum: 1  # Ensure productUnit ID is positive
         reorderLevel:
           type: integer
           description: Minimum stock level to trigger a reorder.

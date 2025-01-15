@@ -3,7 +3,9 @@ package com.simplyminds.product.service.impl;
 import com.simplyminds.model.Product;
 import com.simplyminds.model.ProductResponseDTO;
 import com.simplyminds.product.entity.ProductEntity;
+import com.simplyminds.product.enums.ErrorCode;
 import com.simplyminds.product.exception.BadRequestException;
+import com.simplyminds.product.exception.ResourceAlreadyExistException;
 import com.simplyminds.product.mapper.ProductMapper;
 import com.simplyminds.product.repository.ProductRepository;
 import com.simplyminds.product.service.ProductService;
@@ -33,9 +35,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO createProduct(Product productDTO) {
         // Validate unique SKU
-        // Todo: update sku check here later
-        if (productRepository.existsById(Long.valueOf(productDTO.getId()))) {
-            throw new BadRequestException("SKU already exists.");
+        if (productRepository.existsBySku(productDTO.getSku())) {
+            throw new ResourceAlreadyExistException(ErrorCode.RES0001.getCode(), "SKU already exists.");
         }
         // Map DTO to entity
         ProductEntity product = productMapper.productDTOToProductEntity(productDTO);
