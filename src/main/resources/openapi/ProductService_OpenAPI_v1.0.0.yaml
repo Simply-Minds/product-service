@@ -17,24 +17,29 @@ paths:
           schema:
             type: integer
             example: 1
+            minimum: 1  # Ensures page number starts at 1
           description: Page number for pagination (default is 1).
         - in: query
           name: size
           schema:
             type: integer
             example: 10
+            minimum: 1  # Ensure at least one product per page
+            maximum: 100  # Prevent excessive page size
           description: Number of products per page (default is 10).
         - in: query
           name: category
           schema:
             type: string
             example: "Electronics"
+            maxLength: 50  # Limit category name length
           description: Filter products by category.
         - in: query
           name: search
           schema:
             type: string
             example: "Laptop"
+            maxLength: 100  # Limit search string length
           description: Search for products by name or SKU.
       responses:
         '200':
@@ -94,6 +99,7 @@ paths:
           schema:
             type: integer
             example: 101
+            minimum: 1  # ID should be a positive integer
           description: The ID of the product.
       responses:
         '200':
@@ -124,6 +130,7 @@ paths:
           schema:
             type: integer
             example: 101
+            minimum: 1  # ID should be a positive integer
           description: The ID of the product to update.
       requestBody:
         required: true
@@ -166,6 +173,7 @@ paths:
           schema:
             type: integer
             example: 101
+            minimum: 1  # ID should be a positive integer
           description: The ID of the product to delete.
       responses:
         '200':
@@ -196,70 +204,96 @@ components:
           type: integer
           description: Unique identifier for the product.
           example: 101
+          minimum: 1  # Ensure ID is a positive integer
         name:
           type: string
           description: Name of the product.
           example: "Laptop"
+          minLength: 2  # Ensure name has at least 2 characters
+          maxLength: 100  # Limit name length to 100 characters
         sku:
           type: string
           description: Stock Keeping Unit (SKU) of the product.
           example: "LPT12345"
+          minLength: 5  # Ensure SKU has at least 5 characters
+          maxLength: 20  # Limit SKU length to 20 characters
         price:
           type: number
           format: float
           description: Price of the product.
           example: 599.99
+          minimum: 0.01  # Ensure price is a positive number
         description:
           type: string
           description: Description of the product.
           example: "High-performance laptop."
+          maxLength: 500  # Limit description length to 500 characters
         quantityInStock:
           type: integer
           description: Number of items currently in stock.
           example: 50
+          minimum: 0  # Ensure stock is non-negative
         categoryId:
           type: integer
           description: ID of the category the product belongs to.
           example: 10
+          minimum: 1  # Ensure category ID is positive
+        productUnitId:
+          type: integer
+          description: ID of the product unit the product belongs to.
+          example: 10
+          minimum: 1  # Ensure productUnit ID is positive
         reorderLevel:
           type: integer
           description: Minimum stock level to trigger a reorder.
           example: 10
+          minimum: 0  # Ensure reorder level is non-negative
         status:
           type: string
           description: Status of the product (e.g., "active", "discontinued").
           example: "active"
+          enum:  # Restrict status to predefined values
+            - "active"
+            - "discontinued"
         imageUrl:
           type: string
           description: URL link to the product image.
           example: "https://example.com/images/laptop.jpg"
+          pattern: "^https?://.*$"  # Ensure the URL is valid
         brand:
           type: string
           description: Brand name of the product.
           example: "Dell"
+          maxLength: 50  # Limit brand name length
         weight:
           type: number
           format: float
           description: Weight of the product in kilograms.
           example: 2.5
+          minimum: 0  # Ensure weight is non-negative
         dimensions:
           type: string
           description: Dimensions of the product (e.g., "10x20x5 cm").
           example: "10x20x5 cm"
+          maxLength: 100  # Limit dimensions description length
         color:
           type: string
           description: Primary color of the product.
           example: "Silver"
+          maxLength: 30  # Limit color description length
         supplierId:
           type: integer
           description: ID of the supplier providing the product.
           example: 201
+          minimum: 1  # Ensure supplier ID is positive
         tags:
           type: array
           items:
             type: string
           description: List of tags associated with the product.
           example: ["electronics", "laptop", "computing"]
+          minItems: 1  # Ensure at least one tag
+          maxItems: 10  # Limit number of tags to 10
 
     ProductResponseDTO:
       type: object

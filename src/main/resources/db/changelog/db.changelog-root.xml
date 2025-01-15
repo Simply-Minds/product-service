@@ -3,7 +3,6 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.17.xsd">
-
-    <include file="db/changelog/db.chnagelog-IOMS-1007.sql" />
-
+    <include file="db/changelog/db.changelog-IOMS-1007.sql" />
+    <include file="db/changelog/db.changelog-IOMS-1022.sql" />
 </databaseChangeLog>
