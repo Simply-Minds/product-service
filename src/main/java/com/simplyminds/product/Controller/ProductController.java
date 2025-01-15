@@ -120,7 +120,7 @@ public class ProductController {
      */
 
     @GetMapping("/products/filter/lowStock")
-    public ResponseDTO<Object> getProductByCategory (
+    public ResponseDTO<Object> getProductByLowStock (
     @RequestParam(defaultValue = "0") int page,
     @RequestParam(defaultValue = "1") int size,
     @RequestParam(defaultValue = "productId") String sortBy,
@@ -146,8 +146,45 @@ public class ProductController {
 
     }
 
+    /**
+     * Update an existing product by productId
+     * @param  product The product object to update
+     * @return updated product, returns response with error code, message,data=null.
+     * @throws IllegalArgumentException if the @Param product invalid or null .
+     * @throws RuntimeException if error in server or an exceptional error
+     * @since 1.0
+     */
 
+    @PutMapping("/products/update")
+    public ResponseDTO<Object> updateProduct(@RequestBody Product product){
+        try {
 
+            if (product.getProductId() == null) {
+                throw new IllegalArgumentException("Please specify which product to update");
+            }
+            Product productResponse = productService.updateProduct(product);
+            if (productResponse == null) {
+                return new ResponseDTO<>(false,null  , 404, "products not found");
+            }
+            return new ResponseDTO<>(true,productResponse  , null, null);
+        }catch (Exception ex){
+            throw new RuntimeException("Internal server error: " + ex);
+        }
+    }
+//
+//    @DeleteMapping("/products/delete")
+//    public ResponseDTO<Object> deleteProduct(@RequestParam(required = true) Long productId){
+//
+//        // TODO : TAKE user password before deleting any product from db, also validated it first
+//
+//       try{
+//           if (productId == null) {
+//               throw new IllegalArgumentException("product id is not provided");
+//           }
+//
+//       }
+//
+//    }
 
 
 }

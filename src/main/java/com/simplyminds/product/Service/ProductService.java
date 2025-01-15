@@ -163,6 +163,17 @@ public class ProductService {
         return new PaginatedDTO<>(productDTOS, totalElements, totalPages, page, size);
     }
 
+    // update an existing product by product id and save it in db.
+    // (note : product object will be send this time NOT productDTO
+    // because user has rights to update the all details of a product except product id
+    public Product updateProduct(Product product) {
+        for (Product product1 : productRepository.findAll()){
+            if (Objects.equals(product.getProductId(), product.getProductId())) {
+                return productRepository.save(product);
+            }
+        }
+        return null;
+    }
 
 
 }
