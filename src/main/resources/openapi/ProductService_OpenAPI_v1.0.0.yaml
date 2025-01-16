@@ -28,12 +28,19 @@ paths:
             maximum: 100  # Prevent excessive page size
           description: Number of products per page (default is 10).
         - in: query
-          name: category
+          name: filter
+          schema:
+            type: string
+            example: "Category"
+            maxLength: 50  # Limit filter name length
+          description: Filter to apply.
+        - in: query
+          name: filterValue
           schema:
             type: string
             example: "Electronics"
-            maxLength: 50  # Limit category name length
-          description: Filter products by category.
+            maxLength: 50  # Limit filterValue name length
+          description: Filter products by filterValue.
         - in: query
           name: search
           schema:
@@ -330,6 +337,22 @@ components:
           type: string
           nullable: true
           example: null
+        pagination:
+          type: object
+          properties:
+            totalObjects:
+              type: integer
+              example: 100
+            totalPages:
+              type: integer
+              example: 10
+            currentPage:
+              type: integer
+              example: 1
+            currentSize:
+              type: integer
+              example: 10
+
 
     ErrorResponseDTO:
       type: object
