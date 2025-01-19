@@ -11,8 +11,10 @@ import com.simplyminds.product.repository.CategoryRepository;
 import com.simplyminds.product.repository.ProductRepository;
 import com.simplyminds.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -95,6 +97,54 @@ public class ProductServiceImpl implements ProductService {
         return getPaginatedProducts(productEntities, page, size);
     }
 
+
+    @Override
+    public ProductListResponseDTO getDefaultProductList(Integer page, Integer size, String sortBy, boolean ascending) {
+
+        // sorting by using sort class with two parameters sortBy,ascending
+        Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+
+        // page with all data
+        Page<ProductEntity> productsPage = productRepository.findAll((Pageable) pageable);
+        // only data (products)
+        List<Product> products = new ArrayList<>();
+        // Map entities back to DTOs
+        for (ProductEntity productEntity : productsPage){
+            // Map entity back to DTO
+            Product entityToProductDTO = productMapper.productEntityToProductDTO(productEntity);
+            products.add(entityToProductDTO);
+        }
+
+        ProductListResponseDTOPagination pagination = new ProductListResponseDTOPagination();
+        pagination.setTotalObjects(((int) productsPage.getTotalElements()));
+        pagination.currentPage(page);
+        pagination.setTotalPages(productsPage.getTotalPages());
+        pagination.currentSize(size);
+        ProductListResponseDTO productListResponseDTO = new ProductListResponseDTO();
+        productListResponseDTO.setSuccess(Boolean.TRUE);
+        productListResponseDTO.data(products);
+        productListResponseDTO.errorCode(null);
+        productListResponseDTO.errorMessage(null);
+        productListResponseDTO.setPagination(pagination);
+        productListResponseDTO.getPagination().getTotalObjects();
+        productListResponseDTO.getPagination().getCurrentSize();
+        productListResponseDTO.getPagination().getCurrentPage();
+        productListResponseDTO.getPagination().getTotalPages();
+        return productListResponseDTO;
+
+    }
+
+
+
+    /**
+     * delete a product from the inventory by product id.
+     *
+     * @param id the ID of product to be deleted
+     * @return the SuccessResponseDTO with Success message; returns null if not found
+     */
+
     @Override
     public SuccessResponseDTO productsIdDelete(Integer id) {
 
@@ -105,7 +155,12 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity productEntity = product.get();
 
         if (productEntity == null) {
-            return null;
+            SuccessResponseDTO successResponseDTO = new SuccessResponseDTO();
+            successResponseDTO.success(false);
+            successResponseDTO.errorCode("404");
+            successResponseDTO.errorMessage("not found product by id "+id);
+            successResponseDTO.data(null);
+            return successResponseDTO;
         }
                 productRepository.delete(productEntity);
               SuccessResponseDTO successResponseDTO = new SuccessResponseDTO();
@@ -117,6 +172,12 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+    /**
+     * update or edit an existing product from the inventory by product id.
+     *
+     * @param id the ID of product to be updated
+     * @return the ProductResponseDTO with updated details
+     */
     @Override
     public ProductResponseDTO productsIdPut(Integer id, Product productDTO) {
         if (id == null) {
@@ -137,6 +198,13 @@ public class ProductServiceImpl implements ProductService {
         productResponseDTO.setSuccess(Boolean.TRUE);
         return productResponseDTO;
     }
+
+    /**
+     * get a product by product id.
+     *
+     * @param id the ID of product to be retrieved
+     * @return the ProductResponseDTO with updated details
+     */
 
     @Override
     public ProductResponseDTO productsIdGet(Integer id) {
@@ -166,21 +234,23 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+
     // filtering methode
+    /**
+     * methode used in getListOfProducts to provide filtered products
+     *
+     * @param filter the filter to be applied like:byCategory,byLowStock
+     * @return the List<ProductEntity> which contains the filtered products
+     */
     public List<ProductEntity>  getListOfProductsByFilter(String filter , String filterValue) {
 
         List<ProductEntity> filteredProducts = new ArrayList<>();
         // filter by category
         if(Objects.equals(filter, "category")){
             for (CategoryEntity categoryEntity : categoryRepository.findAll()) {
-                System.out.println("category selected");
-                System.out.println("category name : " + categoryEntity.getName());
-                System.out.println(categoryEntity);
-                System.out.println(
-                        filterValue
-                );
+
                 if (filterValue.equalsIgnoreCase(categoryEntity.getName())) {
-                    System.out.println("value"+categoryEntity.getName());
+
                     for (ProductEntity productEntity : productRepository.findAll()) {
                         if (Objects.equals(productEntity.getCategoryEntity().getCategoryId(), categoryEntity.getCategoryId())){
                             filteredProducts.add(productEntity);
@@ -196,13 +266,13 @@ public class ProductServiceImpl implements ProductService {
 
         }
         else if (Objects.equals(filter, "lowStock")){
-            System.out.println("lowstock");
+
             for (ProductEntity productEntity : productRepository.findAll()) {
 
                 if (productEntity.getQuantityInStock() >= productEntity.getReorderLevel()) {
 
                     filteredProducts.add(productEntity);
-                    System.out.println("lowstock found");
+
 
                 }
 
@@ -214,9 +284,7 @@ public class ProductServiceImpl implements ProductService {
             return null;
 
         }
-        System.out.println(
-                "return filterlist"
-        );
+
         return filteredProducts;
 
     }
@@ -225,6 +293,12 @@ public class ProductServiceImpl implements ProductService {
 
 
     // pagination logic
+    /**
+     * methode used in getListOfProducts to provide pagination support.
+     *
+     * @param filteredProducts the list of products on which pagination will apply.
+     * @return the ProductListResponseDTO which contains all the details of pagination and data.
+     */
     public ProductListResponseDTO getPaginatedProducts(List<ProductEntity> filteredProducts, int page, int size) {
 
 

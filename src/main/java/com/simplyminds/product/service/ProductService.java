@@ -4,6 +4,8 @@ import com.simplyminds.model.Product;
 import com.simplyminds.model.ProductListResponseDTO;
 import com.simplyminds.model.ProductResponseDTO;
 import com.simplyminds.model.SuccessResponseDTO;
+import com.simplyminds.product.entity.ProductEntity;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
 public interface ProductService {
@@ -15,4 +17,6 @@ public interface ProductService {
     ProductResponseDTO productsIdPut(Integer id, Product product);
 
     ProductResponseDTO productsIdGet(Integer id);
+
+    ProductListResponseDTO getDefaultProductList(Integer page, Integer size, String sortBy, boolean ascending);
 }
