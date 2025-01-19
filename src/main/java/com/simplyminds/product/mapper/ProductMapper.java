@@ -17,6 +17,7 @@ public interface ProductMapper {
      * @param productEntity the product entity
      * @return the corresponding ProductDto
      */
+    @Mapping(source = "productId", target = "id")
     @Mapping(source = "categoryEntity.categoryId", target = "categoryId")
     @Mapping(source = "productUnitEntity.productUnitId", target = "productUnitId")
     @Mapping(source = "status", target = "status", qualifiedByName = "mapStatusToEnum")

@@ -16,9 +16,9 @@ paths:
           name: page
           schema:
             type: integer
-            example: 1
-            minimum: 1  # Ensures page number starts at 1
-          description: Page number for pagination (default is 1).
+            example: 0
+            minimum: 0  # Ensures page number starts at 0
+          description: Page number for pagination (default is 0).
         - in: query
           name: size
           schema:

@@ -4,6 +4,7 @@ import com.simplyminds.api.ProductsApi;
 import com.simplyminds.model.Product;
 import com.simplyminds.model.ProductListResponseDTO;
 import com.simplyminds.model.ProductResponseDTO;
+import com.simplyminds.model.SuccessResponseDTO;
 import com.simplyminds.product.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +38,31 @@ public class ProductController implements ProductsApi {
     @Override
     public ResponseEntity<ProductListResponseDTO> productsGet(Integer page, Integer size, String filter, String filterValue, String search) {
         ProductListResponseDTO products = productService.getListOfProducts(page, size, filter,filterValue,search);
+        if (products == null) {
+            return null;
+
+        }
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
+    @Override
+    public ResponseEntity<SuccessResponseDTO> productsIdDelete(Integer id) {
+
+        return ResponseEntity.status(HttpStatus.OK).body( productService.productsIdDelete(id));
+    }
+
+
+    @Override
+    public ResponseEntity<ProductResponseDTO> productsIdPut(Integer id, Product product) {
+      ProductResponseDTO productResponseDTO  = productService.productsIdPut(id, product);
+        return ResponseEntity.status(HttpStatus.OK).body(productResponseDTO);
+    }
+
+    @Override
+    public ResponseEntity<ProductResponseDTO> productsIdGet(Integer id) {
+    ProductResponseDTO productResponseDTO = productService.productsIdGet(id);
+    return ResponseEntity.status(HttpStatus.OK).body(productResponseDTO);
+    }
 
 
 }
