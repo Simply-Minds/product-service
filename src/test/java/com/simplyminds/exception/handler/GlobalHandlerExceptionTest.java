@@ -3,6 +3,7 @@ package com.simplyminds.exception.handler;
 import com.simplyminds.product.dto.ResponseDto;
 import com.simplyminds.product.enums.ErrorCode;
 import com.simplyminds.product.exception.BadRequestException;
+import com.simplyminds.product.exception.NotFoundException;
 import com.simplyminds.product.exception.ResourceAlreadyExistException;
 import com.simplyminds.product.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
@@ -66,6 +67,19 @@ class GlobalExceptionHandlerTest {
         ResponseEntity<ResponseDto<String>> response = globalExceptionHandler.handleResourceAlreadyExistException(ex);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals(false, response.getBody().getSuccess());
+        assertEquals(errorCode, response.getBody().getErrorCode());
+        assertEquals(errorMessage, response.getBody().getErrorMessage());
+    }
+    @Test
+    void testHandleNotFoundException() {
+        String errorCode = "ERR404";
+        String errorMessage = "Not found error";
+        NotFoundException ex = new NotFoundException(errorCode, errorMessage);
+
+        ResponseEntity<ResponseDto<String>> response = globalExceptionHandler.handleNotFoundException(ex);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());// what this line mean ? Ans:-
         assertEquals(false, response.getBody().getSuccess());
         assertEquals(errorCode, response.getBody().getErrorCode());
         assertEquals(errorMessage, response.getBody().getErrorMessage());

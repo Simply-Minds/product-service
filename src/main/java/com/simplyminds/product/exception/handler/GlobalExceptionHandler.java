@@ -2,6 +2,7 @@ package com.simplyminds.product.exception.handler;
 
 import com.simplyminds.product.dto.ResponseDto;
 import com.simplyminds.product.exception.BadRequestException;
+import com.simplyminds.product.exception.NotFoundException;
 import com.simplyminds.product.exception.ResourceAlreadyExistException;
 import com.simplyminds.product.enums.ErrorCode;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.stream.Collectors;
 
@@ -59,6 +61,14 @@ public class GlobalExceptionHandler {
         String message = ex.getMessage() != null ? ex.getMessage() : ErrorCode.RES0001.getMessage();
         ResponseDto<String> response = new ResponseDto<>(false, null, errorCode, message);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);  // Conflict for resource already exists
+    }
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ResponseDto<String>> handleNotFoundException(NotFoundException ex) {
+        // Get error code and message from the exception or use default
+        String errorCode = ex.getErrorCode() != null ? ex.getErrorCode() : ErrorCode.ERR404.getCode();
+        String message = ex.getMessage() != null ? ex.getMessage() : ErrorCode.ERR404.getMessage();
+        ResponseDto<String> response = new ResponseDto<>(false, null, errorCode, message);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     /**

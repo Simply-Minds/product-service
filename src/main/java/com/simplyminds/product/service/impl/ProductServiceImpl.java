@@ -4,19 +4,21 @@ import com.simplyminds.model.*;
 import com.simplyminds.product.entity.CategoryEntity;
 import com.simplyminds.product.entity.ProductEntity;
 import com.simplyminds.product.enums.ErrorCode;
+import com.simplyminds.model.ProductResponseDTO;
 import com.simplyminds.product.exception.BadRequestException;
+import com.simplyminds.product.exception.NotFoundException;
 import com.simplyminds.product.exception.ResourceAlreadyExistException;
 import com.simplyminds.product.mapper.ProductMapper;
 import com.simplyminds.product.repository.CategoryRepository;
 import com.simplyminds.product.repository.ProductRepository;
 import com.simplyminds.product.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,16 +28,14 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-
     private final ProductMapper productMapper;
-    @Autowired
-    CategoryRepository categoryRepository;
-
+    private final CategoryRepository categoryRepository;
 
     public ProductServiceImpl(ProductRepository productRepository,
-                              ProductMapper productMapper) {
+                              ProductMapper productMapper, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
+        this.categoryRepository = categoryRepository;
     }
 
     /**
@@ -70,6 +70,7 @@ public class ProductServiceImpl implements ProductService {
      * @param size     The no of elements(objects) per page.
      * @param filter The filter to apply (find products by category).
      * @param filterValue    the value of filter to use like: category->food->chips or lowStock->no value needed
+     * @param search the query that will converted into words and then perform tasks for filtering (basic)
      * @return The list of products with filter applied if found; otherwise, returns response with error code, message,data=null.
      * @throws IllegalArgumentException if the @Param page and size, sortBy are invalid .
      * @throws RuntimeException         if error in server or an exceptional error
@@ -79,22 +80,34 @@ public class ProductServiceImpl implements ProductService {
     // methode that will call another methode to do work
     @Override
     public ProductListResponseDTO getListOfProducts(Integer page, Integer size, String filter, String filterValue, String search) {
-
-      List<ProductEntity> productEntities  = getListOfProductsByFilter(filter,filterValue);
-
-        if (productEntities == null) {
-            ProductListResponseDTO productListResponseDTO = new ProductListResponseDTO();
-            productListResponseDTO.setSuccess(Boolean.FALSE);
-            productListResponseDTO.data(null);
-            productListResponseDTO.errorCode("404");
-            productListResponseDTO.errorMessage("not found body is empty");
+        // if filter is not provided it means return default products without filtering (ASSUMING).
+        if (filter==null&&filterValue==null&&search==null){
+            String sortBy = "price";// default sorting
+            boolean ascending = true;
+            ProductListResponseDTO productListResponseDTO = getDefaultProductList(page,size,sortBy,ascending);
             return productListResponseDTO;
-
-
-
         }
-        System.out.println("called methode of pagination");
-        return getPaginatedProducts(productEntities, page, size);
+
+        if(search != null){
+            // call the search engine class and get the fields to be filtered
+            // and then call the getListOfProductsByFilter methode with that filter and filter Value methode
+           String [] data = getTheFilteredDataBySearch(search);
+           filter = data[0];
+           filterValue = data[1];
+
+            List<ProductEntity> productEntities  = getListOfProductsByFilter(filter,filterValue);
+            if (productEntities.isEmpty()){
+                throw new NotFoundException(ErrorCode.ERR404.getCode(),"Not found.");
+            }
+            return getPaginatedProducts(productEntities, page, size);
+        }
+
+        List<ProductEntity> productEntities  = getListOfProductsByFilter(filter,filterValue);
+        if (productEntities == null || productEntities.isEmpty()) {
+            throw new NotFoundException(ErrorCode.ERR404.getCode(), "Not found.");
+        }
+            return getPaginatedProducts(productEntities, page, size);
+
     }
 
 
@@ -108,6 +121,11 @@ public class ProductServiceImpl implements ProductService {
 
         // page with all data
         Page<ProductEntity> productsPage = productRepository.findAll((Pageable) pageable);
+        if (productsPage.isEmpty()) {
+
+            throw new NotFoundException(ErrorCode.ERR404.getCode(),"Products not found.");
+
+        }
         // only data (products)
         List<Product> products = new ArrayList<>();
         // Map entities back to DTOs
@@ -147,21 +165,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public SuccessResponseDTO productsIdDelete(Integer id) {
-
-        if (id<=0) {
-            return null;
+        if (id == null||id<=0) {
+            throw new BadRequestException(ErrorCode.BAD0001.getCode(),"Invalid id.");
         }
         Optional<ProductEntity> product =  productRepository.findById(id.longValue());
-        ProductEntity productEntity = product.get();
 
-        if (productEntity == null) {
-            SuccessResponseDTO successResponseDTO = new SuccessResponseDTO();
-            successResponseDTO.success(false);
-            successResponseDTO.errorCode("404");
-            successResponseDTO.errorMessage("not found product by id "+id);
-            successResponseDTO.data(null);
-            return successResponseDTO;
+
+        if (product.isEmpty()) {
+
+            throw new NotFoundException(ErrorCode.ERR404.getCode(),"Product id not found.");
+
         }
+
+        ProductEntity productEntity = product.get();
                 productRepository.delete(productEntity);
               SuccessResponseDTO successResponseDTO = new SuccessResponseDTO();
               successResponseDTO.success(true);
@@ -180,8 +196,8 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ProductResponseDTO productsIdPut(Integer id, Product productDTO) {
-        if (id == null) {
-            return null;
+        if (id == null || id <=0) {
+            throw new BadRequestException(ErrorCode.BAD0001.getCode(),"Invalid id.");
         }
         // Validate unique SKU
         if (productRepository.existsBySku(productDTO.getSku())) {
@@ -208,13 +224,19 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDTO productsIdGet(Integer id) {
-        if (id == null) {
-            return null;
 
+        if((id<=0)) {
+            throw new BadRequestException(ErrorCode.BAD0001.getCode(),"Invalid id.");
         }
-        if(!(id<=0)){
                 Optional<ProductEntity> product =  productRepository.findById(id.longValue());
-                ProductEntity productEntity = product.get();
+
+            if (product.isEmpty()) {
+
+                throw new NotFoundException(ErrorCode.ERR404.getCode(),"Product not found.");
+
+
+            }
+        ProductEntity productEntity = product.get();
                 Product entityToProductDTO = productMapper.productEntityToProductDTO(productEntity);
                 ProductResponseDTO productResponseDTO = new ProductResponseDTO();
                 productResponseDTO.data(entityToProductDTO);
@@ -225,16 +247,12 @@ public class ProductServiceImpl implements ProductService {
         }
 
 
-        ProductResponseDTO productResponseDTO = new ProductResponseDTO();
-        productResponseDTO.data(null);
-        productResponseDTO.errorCode("404");
-        productResponseDTO.errorMessage("No product exists by id : "+ id);
-        productResponseDTO.setSuccess(false);
-        return productResponseDTO;
-
-    }
 
 
+
+    // logic to retrieve all the instance variables from class to compare
+    ProductEntity products = new ProductEntity();
+    Field[] fields = products.getClass().getDeclaredFields();
     // filtering methode
     /**
      * methode used in getListOfProducts to provide filtered products
@@ -246,7 +264,16 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductEntity> filteredProducts = new ArrayList<>();
         // filter by category
-        if(Objects.equals(filter, "category")){
+        ProductEntity productE = new ProductEntity();
+        Field[] fields = productE.getClass().getDeclaredFields();
+        String match = null;
+        for (Field field : fields){
+            if (field.getName().equalsIgnoreCase(filter)){
+                match = field.getName();
+            }
+        }
+
+        if(Objects.equals(match, "categoryEntity")){
             for (CategoryEntity categoryEntity : categoryRepository.findAll()) {
 
                 if (filterValue.equalsIgnoreCase(categoryEntity.getName())) {
@@ -254,8 +281,7 @@ public class ProductServiceImpl implements ProductService {
                     for (ProductEntity productEntity : productRepository.findAll()) {
                         if (Objects.equals(productEntity.getCategoryEntity().getCategoryId(), categoryEntity.getCategoryId())){
                             filteredProducts.add(productEntity);
-                            System.out.println(productEntity.getCategoryEntity().getCategoryId());
-                               System.out.println(productEntity);
+
                         }
 
                     }
@@ -265,7 +291,8 @@ public class ProductServiceImpl implements ProductService {
             }
 
         }
-        else if (Objects.equals(filter, "lowStock")){
+        // Filter for low stock assuming the low stock will be defined by the reorder level
+        else  if(Objects.equals(match, "lowStock")){
 
             for (ProductEntity productEntity : productRepository.findAll()) {
 
@@ -278,6 +305,84 @@ public class ProductServiceImpl implements ProductService {
 
             }
         }
+        // filter by supplier and supplierName
+        else if (Objects.equals(filter,"supplier")) {
+            //TODO this will done when supplier service will done
+            filteredProducts.add(null);
+        }
+        // filter by status
+        else if (Objects.equals(filter,"status")){
+
+            for (ProductEntity productEntity : productRepository.findAll()) {
+
+                if (productEntity.getStatus().equalsIgnoreCase(filterValue)) {
+
+                    filteredProducts.add(productEntity);
+
+
+                }
+
+            }
+        }
+        // filter by quantity
+        else  if (Objects.equals(filter,"quantity")){
+
+            for (ProductEntity productEntity : productRepository.findAll()) {
+
+                if (productEntity.getQuantityInStock() == Math.toIntExact(Long.parseLong(filterValue))) {
+
+                    filteredProducts.add(productEntity);
+
+
+                }
+
+            }
+        }
+        // filter by name
+        else if (Objects.equals(filter,"name")){
+
+            for (ProductEntity productEntity : productRepository.findAll()) {
+
+                if (productEntity.getName().equalsIgnoreCase(filterValue)) {
+
+                    filteredProducts.add(productEntity);
+
+
+                }
+
+            }
+        }
+        // filter by SKU
+        else  if (Objects.equals(filter,"sku")){
+
+            for (ProductEntity productEntity : productRepository.findAll()) {
+
+                if (productEntity.getSku().equalsIgnoreCase(filterValue)) {
+
+                    filteredProducts.add(productEntity);
+
+
+                }
+
+            }
+        }
+        // idea we can make the substring of the desired filter value and here we are added the functionality of
+        // getting response even if the spelling is not correct
+
+        // filter by brand
+        else if (Objects.equals(filter,"brand")){
+            for (ProductEntity productEntity : productRepository.findAll()) {
+
+                if (productEntity.getBrand().equalsIgnoreCase(filterValue)) {
+
+                    filteredProducts.add(productEntity);
+
+
+                }
+
+            }
+        }
+
 
         if (filteredProducts.isEmpty()) {
 
@@ -339,6 +444,141 @@ public class ProductServiceImpl implements ProductService {
        productListResponseDTO.getPagination().getTotalPages();
 
         return productListResponseDTO;
+
+    }
+
+
+
+    /**
+     * Lets break down the Query in the parts of spaces
+     * @Param search the Query to be searched.
+     * @Return returns the list of products based on the engine work
+     * */
+    // Locale.ROOT :-
+    // going to use regex for he next part of spliting and  reasesrching
+    // X,//s,\\S,\w,\W,\p{space}
+    // Now lets make filters for the refrenicing variable and for value and
+    // then passing them in the getProductsList methode calling with the desired parameter filter and filterValue
+    /**
+     * we will use  predefined methode to gather the names of instance variable fields
+     * So that we can compare them with the query words or parts and if matches then we will store them in
+     * A new array as recognized fields so that we can pass them into the getProductsList methode to filter them and we*/
+    // Let takes the input in smaller case and then let them used
+    //*** alternative ***\\ we can give the response from  here direct
+    // FIRST TRYING TO CALL THE EXISTING METHODE
+
+
+    public String[] getTheFilteredDataBySearch(String search){
+        System.out.println("search : "+search);
+        String filter = null;
+        String filterValue = null;
+        String[] words = search.toLowerCase().split("\\s+"); // Set of things that will help to separate values
+
+        int queryLength = words.length;
+        // Fetching all the instance variables
+        ProductEntity productEntity = new ProductEntity();
+        Field[] fields = productEntity.getClass().getDeclaredFields(); //Field[] array contains all the fields in productEntity
+        // Now we can use the fields.getName() methode to get the names of each instance variables
+        // *** ONE thing we need to convert the name in lowercase each time using the name *** \\
+        int fieldLength = fields.length;
+        // NEW ARRAY TO STORE THE RECOGNIZED WORDS FOR FURTHER OPERATION
+        ArrayList<String> recognizedWordsOfFilter = new ArrayList<>();
+        ArrayList<String> recognizedWordsOfFilterValue = new ArrayList<>();
+
+
+        // **** THIS LOGIC IS FOR PARAMETER 'filter'
+        for (int i=0;i<words.length;i++){
+            for (Field field : fields){
+                // inner loop to treverse over the instance variables (fields)
+                String fieldName = field.getName().toLowerCase();
+
+        if (Objects.equals(words[i], fieldName)){
+            // adding the recognized word to the recognizedWordsOfFilter arrayList for the 'filter parameter'
+            recognizedWordsOfFilter.add(words[i]);
+        }
+
+
+    }
+        }
+        // **** THIS LOGIC IS FOR PARAMETER 'filterValue'
+        boolean isField = false;
+        for(String rec:recognizedWordsOfFilter){
+            for (int i=0;i<words.length;i++){
+                if (!Objects.equals(words[i], rec)){
+                    for (Field field : fields){
+                        if (field.getName().equals(words[i])){
+                           isField = true;
+                        }
+                    }
+                    if (!isField){
+                        recognizedWordsOfFilterValue.add(words[i]);
+                    }
+
+                }
+            }
+        }
+
+
+        //***** NOW i will check each filtervalue with the refrenincing field filter ******\\
+        // so that my engine will works as expected dont casr about performance or speed
+        // because the first car engine ia also very slow .... good night ceo of jlss mr. jeet solanki - 24-01-2025tm01:27:25
+
+        //++++++ AND REMEMBER TO COMPLETE IT IN THE MORNING ++++++\\
+        /**
+         * NOTE : THE WORDS ARE CONVERTED IN LOWERCASE BEFORE DOING ANY ACTION DON'T WORRY DARLING .
+         * exa of useCase :- price 2000 -> so filter = price, filter value = 2000
+         * exa :- category electronic -> so filter = category , filter value = electronics
+         * exa :- quantityInStock 20 -> so filter = quantityInStock , filter value = 20
+         * exa :- lowStock null -> so filter = lowStock , filter value = null -> means using the reorderLevel to recognize the lowStocks
+         * exa :- supplier jeet -> so filter = supplier , filter value = jeet (the name of supplier)
+         * NOTE : all these cases are present in the ProductService class so don't worry sweetHeart
+         */
+
+        // NOW before calling the getProductsList methode set the filterValue to the first no from the numbers array
+
+
+
+
+        if (!recognizedWordsOfFilterValue.isEmpty()) {
+            filterValue = recognizedWordsOfFilterValue.get(0);
+
+        }
+
+        if (!recognizedWordsOfFilter.isEmpty()) {
+            filter = recognizedWordsOfFilter.get(0);
+
+        }
+
+        // now finally calling the methode to get the products and then returning them
+        return new String[]{filter,filterValue};
+
+    }
+
+    // methode for wrong spelling to allow it using
+    public boolean checkSpell(String spell , String expectedSpell){
+
+        if (spell == null || expectedSpell == null ) {
+            return false;
+        }
+        if (spell.length()!=expectedSpell.length()){
+            return false;
+        }
+        int count = 0;
+        int legnth = spell.length();
+        int matchPercentage = (legnth*80)/100;
+
+        for (int i = 0; i < legnth; i++) {
+            if(expectedSpell.length()>i&&spell.length()>i)  {
+                if (spell.charAt(i) == expectedSpell.charAt(i)){
+                    count++;
+                }
+            }else{
+                return false;
+            }
+
+        }
+        // check if length is around 80% matches
+        return count >= matchPercentage;
 
     }
 

@@ -46,18 +46,9 @@ public class ProductController implements ProductsApi {
      */
     @Override
     public ResponseEntity<ProductListResponseDTO> productsGet(Integer page, Integer size, String filter, String filterValue, String search) {
-        // if filter is not provided it means return default products without filtering (ASSUMING).
-        if (filter==null){
-            String sortBy = "id";// default sorting
-            boolean ascending = true;
-           ProductListResponseDTO productListResponseDTO =  productService.getDefaultProductList(page,size,sortBy,ascending);
-            return ResponseEntity.status(HttpStatus.OK).body(productListResponseDTO);
-        }
-        ProductListResponseDTO products = productService.getListOfProducts(page, size, filter,filterValue,search);
-        if (products == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(products);
 
-        }
+
+        ProductListResponseDTO products = productService.getListOfProducts(page, size, filter,filterValue,search);
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
     /**
@@ -70,7 +61,7 @@ public class ProductController implements ProductsApi {
     public ResponseEntity<SuccessResponseDTO> productsIdDelete(Integer id) {
         SuccessResponseDTO successResponseDTO = productService.productsIdDelete(id);
 
-        if (successResponseDTO.getSuccess()) {
+        if (!successResponseDTO.getSuccess()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(successResponseDTO);
         }
         return ResponseEntity.status(HttpStatus.OK).body(successResponseDTO);
