@@ -96,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
            filterValue = data[1];
 
             List<ProductEntity> productEntities  = getListOfProductsByFilter(filter,filterValue);
-            if (productEntities.isEmpty()){
+            if (productEntities==null||productEntities.isEmpty()){
                 throw new NotFoundException(ErrorCode.ERR404.getCode(),"Not found.");
             }
             return getPaginatedProducts(productEntities, page, size);
@@ -273,10 +273,10 @@ public class ProductServiceImpl implements ProductService {
             }
         }
 
-        if(Objects.equals(match, "categoryEntity")){
+        if(checkSpell("category",filter)){
             for (CategoryEntity categoryEntity : categoryRepository.findAll()) {
 
-                if (filterValue.equalsIgnoreCase(categoryEntity.getName())) {
+                if (checkSpell(filterValue,categoryEntity.getName())) {
 
                     for (ProductEntity productEntity : productRepository.findAll()) {
                         if (Objects.equals(productEntity.getCategoryEntity().getCategoryId(), categoryEntity.getCategoryId())){
@@ -292,7 +292,7 @@ public class ProductServiceImpl implements ProductService {
 
         }
         // Filter for low stock assuming the low stock will be defined by the reorder level
-        else  if(Objects.equals(match, "lowStock")){
+        else  if(checkSpell("lowstock",filter)){
 
             for (ProductEntity productEntity : productRepository.findAll()) {
 
@@ -306,16 +306,16 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         // filter by supplier and supplierName
-        else if (Objects.equals(filter,"supplier")) {
+        else if (checkSpell("supplier",filter)) {
             //TODO this will done when supplier service will done
             filteredProducts.add(null);
         }
         // filter by status
-        else if (Objects.equals(filter,"status")){
+        else if (checkSpell("status",filter)){
 
             for (ProductEntity productEntity : productRepository.findAll()) {
 
-                if (productEntity.getStatus().equalsIgnoreCase(filterValue)) {
+                if (checkSpell(filterValue,productEntity.getStatus())) {
 
                     filteredProducts.add(productEntity);
 
@@ -325,7 +325,8 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         // filter by quantity
-        else  if (Objects.equals(filter,"quantity")){
+        else  if (checkSpell("quantity",filter)||checkSpell("QuantityInStock",filter)){
+
 
             for (ProductEntity productEntity : productRepository.findAll()) {
 
@@ -333,17 +334,16 @@ public class ProductServiceImpl implements ProductService {
 
                     filteredProducts.add(productEntity);
 
-
                 }
 
             }
         }
         // filter by name
-        else if (Objects.equals(filter,"name")){
+        else if (checkSpell("name",filter)){
 
             for (ProductEntity productEntity : productRepository.findAll()) {
 
-                if (productEntity.getName().equalsIgnoreCase(filterValue)) {
+                if (checkSpell(filterValue,productEntity.getName())) {
 
                     filteredProducts.add(productEntity);
 
@@ -353,11 +353,11 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         // filter by SKU
-        else  if (Objects.equals(filter,"sku")){
+        else  if (checkSpell("sku",filter)){
 
             for (ProductEntity productEntity : productRepository.findAll()) {
 
-                if (productEntity.getSku().equalsIgnoreCase(filterValue)) {
+                if (checkSpell(filterValue,productEntity.getSku())) {
 
                     filteredProducts.add(productEntity);
 
@@ -370,10 +370,10 @@ public class ProductServiceImpl implements ProductService {
         // getting response even if the spelling is not correct
 
         // filter by brand
-        else if (Objects.equals(filter,"brand")){
+        else if (checkSpell(filter,"brand")){
             for (ProductEntity productEntity : productRepository.findAll()) {
 
-                if (productEntity.getBrand().equalsIgnoreCase(filterValue)) {
+                if (checkSpell(filterValue,productEntity.getBrand())) {
 
                     filteredProducts.add(productEntity);
 
@@ -491,8 +491,11 @@ public class ProductServiceImpl implements ProductService {
             for (Field field : fields){
                 // inner loop to treverse over the instance variables (fields)
                 String fieldName = field.getName().toLowerCase();
+                // we can cut the last six (6) chars  if they equals to "entity"
+                // and can also cut the first 6 chars if they = "product"
 
-        if (Objects.equals(words[i], fieldName)){
+
+        if (checkSpell(words[i],fieldName)){
             // adding the recognized word to the recognizedWordsOfFilter arrayList for the 'filter parameter'
             recognizedWordsOfFilter.add(words[i]);
         }
@@ -506,7 +509,7 @@ public class ProductServiceImpl implements ProductService {
             for (int i=0;i<words.length;i++){
                 if (!Objects.equals(words[i], rec)){
                     for (Field field : fields){
-                        if (field.getName().equals(words[i])){
+                        if (checkSpell(words[i],field.getName())){
                            isField = true;
                         }
                     }
@@ -560,24 +563,25 @@ public class ProductServiceImpl implements ProductService {
         if (spell == null || expectedSpell == null ) {
             return false;
         }
-        if (spell.length()!=expectedSpell.length()){
-            return false;
+        if (spell.equalsIgnoreCase(expectedSpell)){
+            return true;
+        }
+
+
+        if (expectedSpell.toLowerCase().endsWith("entity")) {
+            expectedSpell = expectedSpell.substring(0,expectedSpell.length()-6);
+            System.out.println(expectedSpell);
         }
         int count = 0;
-        int legnth = spell.length();
-        int matchPercentage = (legnth*80)/100;
+        int maxLength = Math.max(spell.length(), expectedSpell.length());
+        int matchPercentage = (maxLength*30)/100;
 
-        for (int i = 0; i < legnth; i++) {
-            if(expectedSpell.length()>i&&spell.length()>i)  {
-                if (spell.charAt(i) == expectedSpell.charAt(i)){
-                    count++;
-                }
-            }else{
-                return false;
+        for (int i = 0; i < Math.min(spell.length(), expectedSpell.length()); i++) {
+            if (spell.charAt(i) == expectedSpell.charAt(i)) {
+                count++;
             }
-
         }
-        // check if length is around 80% matches
+        // check if length is around 60% matches
         return count >= matchPercentage;
 
     }
