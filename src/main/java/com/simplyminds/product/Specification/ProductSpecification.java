@@ -64,7 +64,7 @@ public class ProductSpecification implements Specification<Product> {
             // if the root entity is product then why we are using the productEntity in hte join as previously declared?
             // so the ans may be that for using the join() here , we require a relation btw the entity that gonna be joind in the entity
             // so we have that relation in our productEntity no have in product class thats why i think we are using it.
-           categoryJoin = root.join(SearchParameters.Unit.getField(),JoinType.INNER);
+           categoryJoin = root.join(SearchParameters.Category.getField(),JoinType.INNER);
            field = SearchParameters.Category.getField();// Using the enums to avoid the String literals and for scalebality that in case future we want toi add something new so we dont need to worry about to chage that in all places
             fieldName = SearchParameters.Category.getFieldName();
         } else if (isUnit(field)) {
