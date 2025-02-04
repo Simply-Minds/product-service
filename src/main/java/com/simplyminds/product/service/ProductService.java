@@ -11,12 +11,12 @@ import org.springframework.http.ResponseEntity;
 public interface ProductService {
     ProductResponseDTO createProduct(Product productDTO);
 
-    ProductListResponseDTO getListOfProducts(Integer page, Integer size, String filter, String filterValue,String search);
+    ProductListResponseDTO getListOfProducts(Integer page, Integer size, String filter,String search);
     SuccessResponseDTO productsIdDelete(Integer id);
 
     ProductResponseDTO productsIdPut(Integer id, Product product);
 
     ProductResponseDTO productsIdGet(Integer id);
 
-    ProductListResponseDTO getDefaultProductList(Integer page, Integer size, String sortBy, boolean ascending);
+
 }

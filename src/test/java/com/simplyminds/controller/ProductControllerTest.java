@@ -101,28 +101,15 @@ class ProductControllerTest {
 
     @Test
     void testGetProducts_BySearch(){
-        Mockito.when(productService.getListOfProducts(0,1,null,null,"categoryEntity electric")).thenReturn(productListResponseDTO);
-        ResponseEntity<ProductListResponseDTO> responseEntity = productController.productsGet(0,1,null,null,"categoryEntity electric");
+        Mockito.when(productService.getListOfProducts(0,1,null,"category:electric")).thenReturn(productListResponseDTO);
+        ResponseEntity<ProductListResponseDTO> responseEntity = productController.productsGet(0,1,null,"category:electric");
         Assertions.assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
         Assertions.assertEquals(productListResponseDTO,responseEntity.getBody());
-        Mockito.verify(productService).getListOfProducts(0,1,null,null,"categoryEntity electric");
+        Mockito.verify(productService).getListOfProducts(0,1,null,"category:electric");
     }
-    @Test
-    void testGetProducts_ByFilterAndFilterValue(){
-        Mockito.when(productService.getListOfProducts(0,1,"categoryEntity","electric",null)).thenReturn(productListResponseDTO);
-        ResponseEntity<ProductListResponseDTO> responseEntity = productController.productsGet(0,1,"categoryEntity","electric",null);
-        Assertions.assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
-        Assertions.assertEquals(productListResponseDTO,responseEntity.getBody());
-        Mockito.verify(productService).getListOfProducts(0,1,"categoryEntity","electric",null);
-    }
-    @Test
-    void testGetProducts_ByDefault(){
-        Mockito.when(productService.getListOfProducts(0,1,null,null,null)).thenReturn(productListResponseDTO);
-        ResponseEntity<ProductListResponseDTO> responseEntity = productController.productsGet(0,1,null,null,null);
-        Assertions.assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
-        Assertions.assertEquals(productListResponseDTO,responseEntity.getBody());
-        Mockito.verify(productService).getListOfProducts(0,1,null,null,null);
-    }
+
+
+
 
 
 

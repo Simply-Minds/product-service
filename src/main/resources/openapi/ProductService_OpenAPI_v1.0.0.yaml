@@ -35,13 +35,6 @@ paths:
             maxLength: 50  # Limit filter name length
           description: Filter to apply.
         - in: query
-          name: filterValue
-          schema:
-            type: string
-            example: "Electronics"
-            maxLength: 50  # Limit filterValue name length
-          description: Filter products by filterValue.
-        - in: query
           name: search
           schema:
             type: string

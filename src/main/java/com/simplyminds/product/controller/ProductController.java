@@ -41,14 +41,14 @@ public class ProductController implements ProductsApi {
      * @param page        The no of page to retrieve.
      * @param size        The no of elements(objects) per page.
      * @param filter      The filter to apply (find products by category).
-     * @param filterValue the value of filter to use like: category->food->chips or lowStock->no value needed
+
      * @return a list  of filtered products with pagination support for both cases: 1.when filter is provided, 2. when filter is not provided
      */
     @Override
-    public ResponseEntity<ProductListResponseDTO> productsGet(Integer page, Integer size, String filter, String filterValue, String search) {
+    public ResponseEntity<ProductListResponseDTO> productsGet(Integer page, Integer size, String filter, String search) {
 
 
-        ProductListResponseDTO products = productService.getListOfProducts(page, size, filter,filterValue,search);
+        ProductListResponseDTO products = productService.getListOfProducts(page, size, filter,search);
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
     /**
