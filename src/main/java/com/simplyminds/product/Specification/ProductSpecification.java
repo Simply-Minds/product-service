@@ -79,11 +79,25 @@ public class ProductSpecification implements Specification<Product> {
 
         if (searchCriteria.getOperation().equalsIgnoreCase(":")) {
             if (fieldName != null) {
-                // Handle joined entities
-                if (categoryJoin != null) {
-                    return builder.like(categoryJoin.get(fieldName), "%" + searchCriteria.getValue() + "%");
-                } else if (unitJoin != null) {
-                    return builder.like(unitJoin.get(fieldName), "%" + searchCriteria.getValue() + "%");
+                /**
+                 * Using the builder.like when the key is belong to the string class string , for checking the each character of the value.
+                 **/
+                if (root.get(searchCriteria.getKey()).getJavaType() == String.class) {
+                    if (categoryJoin != null) {
+                        return builder.like(categoryJoin.get(fieldName), "%" + searchCriteria.getValue() + "%");
+                    } else if (unitJoin != null) {
+                        return builder.like(unitJoin.get(fieldName), "%" + searchCriteria.getValue() + "%");
+                    }
+                }
+                /**
+                 * else using the .equal when the key is not belongs to a string class
+                 **/
+                else {
+                    if (categoryJoin != null) {
+                        return builder.equal(categoryJoin.get(fieldName), searchCriteria.getValue());
+                    } else if (unitJoin != null) {
+                        return builder.equal(unitJoin.get(fieldName), searchCriteria.getValue());
+                    }
                 }
             }
 
@@ -94,8 +108,10 @@ public class ProductSpecification implements Specification<Product> {
                 return builder.equal(root.get(searchCriteria.getKey()), searchCriteria.getValue());
             }
         }
-
-        return null; // No matching operation
+        // return null; can provide and issue that the query will work for return null too
+        // so it will take unnecesury memory
+        // instead go with builder.disjuntion to prevent this
+        return builder.disjunction(); // Instead of returning null we can go with disjunction(). to set qaury correctly
     }
     /**
      * Helper methods to avoid bulky code in main logic
