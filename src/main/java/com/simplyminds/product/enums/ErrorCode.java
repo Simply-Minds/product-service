@@ -28,6 +28,14 @@ public enum ErrorCode {
      * Bad Request error for generic bad requests.
      */
     BAD0001("BAD0001", "Bad Request", 400),
+    /**
+     * Not Found error for generic empty results.
+     */
+    ERR404("ERR404", "Not Found", 404),
+    /**
+     * Internal server error.
+     */
+    ERR500("ERR500", "Server error", 500),
 
     /**
      * Error indicating that a resource already exists.
