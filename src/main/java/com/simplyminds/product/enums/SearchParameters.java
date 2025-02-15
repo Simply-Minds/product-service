@@ -1,5 +1,8 @@
 package com.simplyminds.product.enums;
 
+import com.simplyminds.product.entity.CategoryEntity;
+import com.simplyminds.product.entity.ProductEntity;
+import com.simplyminds.product.entity.ProductUnitEntity;
 import lombok.Getter;
 /**
  * Enum representing various SearchParameters
@@ -23,8 +26,8 @@ public enum SearchParameters {
         /**
          * Category for the operations on categories .
          */
-        Category("Category","type", "ctg","categoryEntity","name"),
-        Unit("Unit","kind", "un","productUnitEntity","unitSpec");
+        Category("Category","type", "ctg","categoryEntity","name", CategoryEntity.class),
+        Unit("Unit","kind", "un","productUnitEntity","unitSpec", ProductUnitEntity.class);
 
         // TODO we can add here as much fields as we want. like meanings of fields for ai based search operations.
 
@@ -33,18 +36,22 @@ public enum SearchParameters {
              private String ShortCuts;
              private String field;
              private String fieldName;
+             private final Class<?> fieldType;
         /**
          * Constructs an instance of the SearchParameters enum with the specified values.
          * @param name the unique error code.
          * @param synonyms the synonyms that can be used as an alternative for the field.
          * @param shortCuts the shortCuts for a particular field based on user preferences
          */
-    SearchParameters(String name,String synonyms, String shortCuts, String field,String fieldName) {
+    SearchParameters(String name,String synonyms, String shortCuts, String field,String fieldName, Class<?> fieldType) {
+        this.fieldType = fieldType;
         this.name = name;
         this.synonyms = synonyms;
         this.ShortCuts = shortCuts;
         this.field = field;
         this.fieldName = fieldName;
+
+
     }
 }
 

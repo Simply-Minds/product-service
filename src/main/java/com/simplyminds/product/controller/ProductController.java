@@ -46,8 +46,6 @@ public class ProductController implements ProductsApi {
      */
     @Override
     public ResponseEntity<ProductListResponseDTO> productsGet(Integer page, Integer size, String filter, String search) {
-
-
         ProductListResponseDTO products = productService.getListOfProducts(page, size, filter,search);
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }

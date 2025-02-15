@@ -7,6 +7,193 @@ servers:
   - url: http://localhost:8080/api/v1
     description: Local development server
 paths:
+  /categories:
+    get:
+      summary: Get a list of category
+      description: Retrieve a list of all category with support for filtering and pagination.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            example: 0
+            minimum: 0  # Ensures page number starts at 0
+          description: Page number for pagination (default is 0).
+        - in: query
+          name: size
+          schema:
+            type: integer
+            example: 10
+            minimum: 1  # Ensure at least one product per page
+            maximum: 100  # Prevent excessive page size
+          description: Number of categories per page (default is 10).
+        - in: query
+          name: filter
+          schema:
+            type: string
+            example: "Category"
+            maxLength: 50  # Limit filter name length
+          description: Filter to apply.
+        - in: query
+          name: search
+          schema:
+            type: string
+            example: "Electronic"
+            maxLength: 100  # Limit search string length
+          description: Search for categories by name or other fields.
+      responses:
+        '200':
+          description: A list of categories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryListResponseDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '500':
+          description: Generic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+    post:
+      summary: Create a new category
+      description: Add a new category to the catalog.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '201':
+          description: category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponseDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '500':
+          description: Generic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+  /categories/{id}:
+    get:
+      summary: Get a category by ID
+      description: Retrieve detailed information about a specific category by its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 101
+            minimum: 1  # ID should be a positive integer
+          description: The ID of the product.
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponseDTO'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '500':
+          description: Generic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+    put:
+      summary: Update a category by ID
+      description: Update an existing category’s details by its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 101
+            minimum: 1  # ID should be a positive integer
+          description: The ID of the category to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        '200':
+          description: category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponseDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '500':
+          description: Generic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+    delete:
+      summary: Delete a category by ID
+      description: Remove a category from the catalog by its ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            example: 101
+            minimum: 1  # ID should be a positive integer
+          description: The ID of the category to delete.
+      responses:
+        '200':
+          description: category deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseDTO'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
+        '500':
+          description: Generic error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseDTO'
   /products:
     get:
       summary: Get a list of products
@@ -295,6 +482,28 @@ components:
           minItems: 1  # Ensure at least one tag
           maxItems: 10  # Limit number of tags to 10
 
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the product.
+          example: 101
+          minimum: 1  # Ensure ID is a positive integer
+        name:
+          type: string
+          description: Name of the category.
+          example: "Electric"
+          minLength: 2  # Ensure name has at least 2 characters
+          maxLength: 100  # Limit name length to 100 characters
+        description:
+          type: string
+          description: Description of the category.
+          example: "All electronic products."
+          maxLength: 500  # Limit description length to 500 characters
+
+
+
     ProductResponseDTO:
       type: object
       properties:
@@ -331,21 +540,45 @@ components:
           nullable: true
           example: null
         pagination:
-          type: object
-          properties:
-            totalObjects:
-              type: integer
-              example: 100
-            totalPages:
-              type: integer
-              example: 10
-            currentPage:
-              type: integer
-              example: 1
-            currentSize:
-              type: integer
-              example: 10
+            $ref: '#/components/schemas/PaginationDTO'
 
+    CategoryResponseDTO:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/Category'
+        errorCode:
+          type: string
+          nullable: true
+          example: null
+        errorMessage:
+          type: string
+          nullable: true
+          example: null
+
+    CategoryListResponseDTO:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        errorCode:
+          type: string
+          nullable: true
+          example: null
+        errorMessage:
+          type: string
+          nullable: true
+          example: null
+        pagination:
+          $ref: '#/components/schemas/PaginationDTO'
 
     ErrorResponseDTO:
       type: object
@@ -380,3 +613,23 @@ components:
           type: string
           nullable: true
           example: null
+
+    PaginationDTO:
+      type: object
+      properties:
+        totalObjects:
+          type: integer
+          example: 100
+          description: "Total number of objects available."
+        totalPages:
+          type: integer
+          example: 10
+          description: "Total number of pages available."
+        currentPage:
+          type: integer
+          example: 1
+          description: "Current page number being viewed."
+        currentSize:
+          type: integer
+          example: 10
+          description: "Number of objects per page."

@@ -1,4 +1,4 @@
-package com.simplyminds.product.Specification;
+package com.simplyminds.product.Specification.impl;
 
 import lombok.Getter;
 import lombok.Setter;
