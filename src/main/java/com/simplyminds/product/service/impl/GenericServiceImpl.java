@@ -46,16 +46,13 @@ public class GenericServiceImpl<T, R extends JpaRepository<T, Long> & JpaSpecifi
     @Override
     public boolean DeleteObject(Integer id) {
         if (id == null || id <= 0) {
-            throw new BadRequestException(ErrorCode.BAD0001.getCode(), "Invalid id.");
+            throw new BadRequestException(ErrorCode.BAD0001.getCode(), ErrorCode.BAD0001.getMessage());
         }
-
-        T object = repository.findById(Long.valueOf(id))
-                .orElseThrow(() -> new NotFoundException(ErrorCode.ERR404.getCode(), "Not found."));
-
-        repository.delete(object);
+        if (!repository.existsById(id.longValue())) {
+             throw new NotFoundException(ErrorCode.ERR404.getCode(),ErrorCode.ERR404.getMessage());  // Ensure the ID exists before deletion
+        }
+        repository.deleteById(id.longValue());
         return true;
-
-        // let return just the data and set the response from override classes.
     }
 
     @Override
@@ -69,12 +66,20 @@ public class GenericServiceImpl<T, R extends JpaRepository<T, Long> & JpaSpecifi
         // like id should not be changed , and giving warnings before updating the qty and sku or category
         // so that user can freely edit the data .
         // but for now let oit be .
+        if (id == null || id <= 0) {
+            throw new BadRequestException(ErrorCode.BAD0001.getCode(), ErrorCode.BAD0001.getMessage());
+        }
+         repository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new NotFoundException(ErrorCode.ERR404.getCode(), ErrorCode.ERR404.getMessage()));
 
         return repository.save(object);
     }
 
     @Override
     public T objectsIdGet(Integer id) {
+        if (id == null || id <= 0) {
+            throw new BadRequestException(ErrorCode.BAD0001.getCode(), ErrorCode.BAD0001.getMessage());
+        }
         return repository.findById(Long.valueOf(id)).orElseThrow(() ->
                 new NotFoundException(ErrorCode.ERR404.getCode(),ErrorCode.ERR404.getMessage()));
     }
@@ -130,7 +135,7 @@ public class GenericServiceImpl<T, R extends JpaRepository<T, Long> & JpaSpecifi
         Pageable pageable = PageRequest.of(page, size);
         Page<T> dataPage = repository.findAll(spec,pageable);
         if (dataPage.isEmpty()) {
-            throw new NotFoundException(ErrorCode.ERR404.getCode(),"Not found.");
+            throw new NotFoundException(ErrorCode.ERR404.getCode(),ErrorCode.ERR404.getMessage());
         }
         logger.info("Data fetched successfully. Total Elements: " + dataPage.getTotalElements());
         return dataPage;

@@ -47,18 +47,10 @@ public class CategoryServiceImpl extends GenericServiceImpl<CategoryEntity, Cate
         Page<CategoryEntity> categoryEntityPage = super.getListOfObjects(page,size,filter,search);
         return serviceHelper.setListCategoryResponseDTO(true,page,size,categoryEntityPage,null,null);
     }
-
     @Override
     public SuccessResponseDTO categoryIdDelete(Integer id) {
-        boolean check =  super.DeleteObject(id);
-        if (check) {
-            return serviceHelper.setSuccessResponseDto(true,null,null);
-        }
-        return null;
+        return serviceHelper.setSuccessResponseDto(super.DeleteObject(id),null,null);
     }
-
-
-
     @Override
     public CategoryResponseDTO categoryIdPut(Integer id, Category categoryDTO) {
         if (repository.existsByName(categoryDTO.getName())) {

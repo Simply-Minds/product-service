@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> , JpaSpecificationExecutor<CategoryEntity> {
 
-    boolean existsByName(@Size(min = 2, max = 100) String name);
+    boolean existsByName(String name);
 }

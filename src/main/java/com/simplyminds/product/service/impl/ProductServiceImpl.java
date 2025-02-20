@@ -7,6 +7,7 @@ import com.simplyminds.model.ProductResponseDTO;
 import com.simplyminds.model.SuccessResponseDTO;
 import com.simplyminds.product.entity.ProductEntity;
 import com.simplyminds.product.enums.ErrorCode;
+import com.simplyminds.product.exception.BadRequestException;
 import com.simplyminds.product.exception.NotFoundException;
 import com.simplyminds.product.exception.ResourceAlreadyExistException;
 import com.simplyminds.product.mapper.ProductMapper;
@@ -18,16 +19,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class ProductServiceImpl extends GenericServiceImpl<ProductEntity, ProductRepository> implements ProductService {
-    @Autowired
-    private ServiceHelper serviceHelper;
-    private ProductMapper productMapper;
-    public ProductServiceImpl(@Qualifier("productRepository")  ProductRepository repository) {
-        super(repository);
 
+    private final ServiceHelper serviceHelper;
+
+    private final ProductMapper productMapper;
+    public ProductServiceImpl(@Qualifier("productRepository")  ProductRepository repository, ServiceHelper serviceHelper, ProductMapper productMapper) {
+        super(repository);
+        this.serviceHelper = serviceHelper;
+
+        this.productMapper = productMapper;
     }
 
     @Override
@@ -39,20 +41,20 @@ public class ProductServiceImpl extends GenericServiceImpl<ProductEntity, Produc
         ProductEntity productEntity = productMapper.productDTOToProductEntity(productDTO);
         ProductEntity savedProduct = super.createObject(productEntity);
         return serviceHelper.setProductResponseDTO(savedProduct,true,null,null);
+
     }
 
     @Override
     public SuccessResponseDTO productsIdDelete(Integer id) {
 
-        boolean check =  super.DeleteObject(id);
-        if (check) {
-            return serviceHelper.setSuccessResponseDto(true,null,null);
-        }
-        return null;
+        return serviceHelper.setSuccessResponseDto(super.DeleteObject(id),null,null);
     }
 
     @Override
     public ProductResponseDTO productsIdPut(Integer id, Product productDTO) {
+        if (id == null) {
+            throw new BadRequestException(ErrorCode.BAD0001.getCode(),ErrorCode.BAD0001.getMessage());
+        }
         if (repository.existsBySku(productDTO.getSku())) {
             throw new ResourceAlreadyExistException(ErrorCode.RES0001.getCode(),ErrorCode.RES0001.getMessage());
         }
