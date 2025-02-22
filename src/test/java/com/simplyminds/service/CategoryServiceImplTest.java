@@ -35,8 +35,7 @@ import java.util.Optional;
 @ExtendWith(MockitoExtension.class)
 public class CategoryServiceImplTest {
 
-    @Mock
-    private GenericServiceImpl<CategoryEntity, CategoryRepository> genericService;
+
     @Mock
     private ServiceHelper serviceHelper;
     @Mock
@@ -202,7 +201,6 @@ public class CategoryServiceImplTest {
         Mockito.verify(categoryRepository,Mockito.times(1)).existsById(Mockito.any());
         Mockito.verify(categoryRepository,Mockito.times(0)).save(Mockito.any(CategoryEntity.class));
     }
-
 
     // Case 4. categoryIdGet
     @Test

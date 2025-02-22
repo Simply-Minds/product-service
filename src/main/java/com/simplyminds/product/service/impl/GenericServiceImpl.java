@@ -1,6 +1,5 @@
 package com.simplyminds.product.service.impl;
 
-import com.simplyminds.model.*;
 import com.simplyminds.product.Specification.SpecificationHelper;
 import com.simplyminds.product.Specification.impl.GenericSpecification;
 import com.simplyminds.product.Specification.impl.SearchCriteria;
