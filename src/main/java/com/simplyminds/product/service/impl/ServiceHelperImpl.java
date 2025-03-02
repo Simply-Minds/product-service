@@ -1,26 +1,32 @@
 package com.simplyminds.product.service.impl;
 
+
 import com.simplyminds.model.*;
 import com.simplyminds.product.entity.CategoryEntity;
 import com.simplyminds.product.entity.ProductEntity;
 import com.simplyminds.product.mapper.CategoryMapper;
+
 import com.simplyminds.product.mapper.ProductMapper;
 import com.simplyminds.product.service.ServiceHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
 import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
+
 @Service
 public class ServiceHelperImpl implements ServiceHelper {
     @Autowired
     private ProductMapper productMapper;
+
     @Autowired
     private CategoryMapper categoryMapper;
+
 
     public ProductResponseDTO setProductResponseDTO(ProductEntity savedProduct, boolean success, String errCode, String errMessage){
         Product entityToProductDTO = productMapper.productEntityToProductDTO(savedProduct);
@@ -31,6 +37,7 @@ public class ServiceHelperImpl implements ServiceHelper {
         productResponseDTO.setSuccess(success);
         return productResponseDTO;
     }
+
     public ProductListResponseDTO setListProductResponseDTO(boolean success, int page, int size, Page<ProductEntity> productsPage, String errCode, String errMessage){
         ProductListResponseDTO productListResponseDTO = new ProductListResponseDTO();
         // Iterating over productsPage.getContent to map the
@@ -43,6 +50,7 @@ public class ServiceHelperImpl implements ServiceHelper {
         productListResponseDTO.errorCode(errCode);
         productListResponseDTO.setSuccess(success);
         PaginationDTO pagination = new PaginationDTO();
+
         pagination.setTotalObjects(((int) productsPage.getTotalElements()));
         pagination.currentPage(page);
         pagination.setTotalPages(productsPage.getTotalPages());
@@ -54,6 +62,7 @@ public class ServiceHelperImpl implements ServiceHelper {
         productListResponseDTO.getPagination().getTotalPages();
         return productListResponseDTO;
     }
+
 
     @Override
     public CategoryResponseDTO setCategoryResponseDTO(CategoryEntity savedCategory, boolean success, String errCode, String errMessage) {

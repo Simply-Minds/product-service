@@ -16,7 +16,9 @@ import com.simplyminds.product.repository.CategoryRepository;
 import com.simplyminds.product.repository.ProductRepository;
 import com.simplyminds.product.repository.ProductUnitRepository;
 import com.simplyminds.product.service.ProductService;
+
 import com.simplyminds.product.service.impl.GenericServiceImpl;
+
 import com.simplyminds.product.service.impl.ProductServiceImpl;
 import com.simplyminds.product.service.ServiceHelper;
 import org.assertj.core.api.Assert;
@@ -39,8 +41,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
+
 
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +55,7 @@ public class ProductServiceImplTest {
     @Mock
     private ProductMapper productMapper;
     @Mock
+
     private ServiceHelper serviceHelper;
 
     private Product productDTO;
@@ -84,12 +89,23 @@ public class ProductServiceImplTest {
         productUnitEntity.setUnitName("Kilogram");
         productUnitEntity.setUnitSpec("kg");
 
+        categoryEntity = new CategoryEntity();
+        categoryEntity.setCategoryId(1L);
+        categoryEntity.setName("electric");
+
+        productUnitEntity = new ProductUnitEntity();
+        productUnitEntity.setProductUnitId(1L);
+        productUnitEntity.setUnitName("Kilogram");
+        productUnitEntity.setUnitSpec("kg");
+
         productEntity = new ProductEntity();
         productEntity.setSku("SKU123");
         productEntity.setName("Test Product");
         productEntity.setPrice(BigDecimal.valueOf(100.0));
         productEntity.setCategoryEntity(categoryEntity);
+
         productEntity.setProductId(1L);// Now here we can assign it as default because the jpa will not work here
+
 
         productListResponseDTO = new ProductListResponseDTO();
         productListResponseDTO.setSuccess(true);
@@ -107,6 +123,7 @@ public class ProductServiceImplTest {
         productResponseDTO.setErrorCode(null);
         productResponseDTO.setErrorMessage(null);
 
+
     }
 
     @Test
@@ -117,6 +134,8 @@ public class ProductServiceImplTest {
         Mockito.when(productRepository.save(Mockito.any(ProductEntity.class))).thenReturn(productEntity);
         Mockito.when(productMapper.productDTOToProductEntity(Mockito.any(Product.class)))
                 .thenReturn(productEntity);
+
+
 
         Mockito.when(serviceHelper.setProductResponseDTO(
                         Mockito.any(ProductEntity.class),
@@ -133,6 +152,8 @@ public class ProductServiceImplTest {
         Mockito.verify(productRepository,  Mockito.times(1)).existsBySku(Mockito.any());
         Mockito.verify(productRepository, Mockito.times(1)).save(Mockito.any(ProductEntity.class));
         Mockito.verify(productMapper, Mockito.times(1)).productDTOToProductEntity(Mockito.any(Product.class));
+
+
         Mockito.verify(serviceHelper, Mockito.times(1)).setProductResponseDTO(Mockito.any(ProductEntity.class), Mockito.anyBoolean(), Mockito.any(), Mockito.any());
     }
     @Test
@@ -153,7 +174,9 @@ public class ProductServiceImplTest {
     @Test
     void testDeleteProduct_IdNotFound() {
         Integer wrongId = 1;
+
         Mockito.when(productRepository.existsById(wrongId.longValue())).thenReturn(false);
+
 
        NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () -> {
             productService.productsIdDelete(wrongId);
@@ -161,11 +184,14 @@ public class ProductServiceImplTest {
 
         Assertions.assertEquals(ErrorCode.ERR404.getCode(), exception.getErrorCode());
 
+
         Assertions.assertEquals(ErrorCode.ERR404.getMessage(), exception.getMessage());
+
         Mockito.verify(productRepository, Mockito.times(0)).delete(Mockito.any(ProductEntity.class));
     }
     @Test
     void testDeleteProduct_IdExists() {
+
         // Arrange: Mock repository to return true when checking if ID exists
         Integer productId = 1;
         Mockito.when(productRepository.existsById(productId.longValue())).thenReturn(true);
@@ -200,11 +226,13 @@ public class ProductServiceImplTest {
 
 
 
+
         Mockito.when(serviceHelper.setProductResponseDTO(
                         Mockito.any(ProductEntity.class),
                         Mockito.anyBoolean(),
                         Mockito.any(),
                         Mockito.any()))
+
                 .thenReturn(productResponseDTO);
 
         // Act
@@ -223,6 +251,7 @@ public class ProductServiceImplTest {
     }
 
 
+
     @Test
     void testUpdateProduct_SkuAlreadyExists() {
         Mockito.when(productRepository.existsBySku(Mockito.any(String.class))).thenReturn(true);
@@ -232,7 +261,9 @@ public class ProductServiceImplTest {
         });
 
         Assertions.assertEquals(ErrorCode.RES0001.getCode(), exception.getErrorCode());
+
         Assertions.assertEquals(ErrorCode.RES0001.getMessage(), exception.getMessage());
+
         Mockito.verify(productRepository, Mockito.times(1)).existsBySku(Mockito.any());
         Mockito.verify(productRepository, Mockito.times(0)).save(Mockito.any(ProductEntity.class));
     }
@@ -240,32 +271,39 @@ public class ProductServiceImplTest {
     // now create the test when the id is not valid for all methods that work on id
     @Test
     void testNullsFor_Update(){
+
         Integer invalidId = null;
+
 
         BadRequestException exception = Assertions.assertThrows(BadRequestException.class, () -> {
             productService.productsIdPut(invalidId,productDTO);
         });
 
         Assertions.assertEquals(ErrorCode.BAD0001.getCode(), exception.getErrorCode());
+
         Assertions.assertEquals(ErrorCode.BAD0001.getMessage(), exception.getMessage());
         Mockito.verify(productRepository, Mockito.times(0)).existsBySku(Mockito.any());
         Mockito.verify(productRepository, Mockito.times(0)).save(Mockito.any(ProductEntity.class));
     }
+
 
     @Test
     void testGetProduct_Success(){
 
         Mockito.when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
 
+
         Mockito.when(serviceHelper.setProductResponseDTO(
                         Mockito.any(ProductEntity.class),
                         Mockito.anyBoolean(),
                         Mockito.any(),
                         Mockito.any()))
+
                 .thenReturn(productResponseDTO);
         ProductResponseDTO responseDTO = productService.productsIdGet(1);
 
         assertNotNull(responseDTO);// checking that the response null
+
         Assertions.assertTrue(responseDTO.getSuccess()); // checking the getSuccess is true
         Assertions.assertEquals("SKU123", responseDTO.getData().getSku());
 
@@ -293,13 +331,16 @@ public class ProductServiceImplTest {
         // Now finally after some useless steps we are here to call our actual code  with both filter as category and search as unit so that we can check our both the conditions simultaneously
         ProductListResponseDTO responseDTO = productService.getListOfProducts(0,1,"Category:electric","unit:kg");
         // now check the response that it as expected
+
         assertNotNull(responseDTO);
+
         Assertions.assertTrue(responseDTO.getSuccess());
         // now verify that the methods that need to acctaully perform this actiosn were called or used or not so to do that
         // we use verify
 
         Mockito.verify(productRepository, Mockito.times(1))
                 .findAll(Mockito.any(Specification.class), Mockito.any(Pageable.class));
+
 
     }
 
@@ -321,14 +362,18 @@ public class ProductServiceImplTest {
         });
         // now check the response that it matches the expecting data, using Assertions
         Assertions.assertEquals(ErrorCode.ERR404.getCode(),exception.getErrorCode());
+
         Assertions.assertEquals(exception.getMessage(),ErrorCode.ERR404.getMessage());
+
         // now verify the methods that how much time they called vs expected
 
     }
 
     // this is my past thinkig on tha tlogic so i didt removed it fro here as it can help me later to understand the
     // the thinkig and learnoig process of human brain and how it approch
+
     // now the last test cases for the methode getProducts() and also for its child methods
+
     /**
      * We have 3 cases for getListOfProducts() :
      * 1. When search is not null . - call the getTheFilteredDataBySearch() and then call getListOfProductsByFilter() and then getPaginatedProducts() and return it.
@@ -336,6 +381,7 @@ public class ProductServiceImplTest {
      * 3. when products not found after applying the filters . - this will throw NotFoundException
      * 4. when filter and filterValue are present . - call this  getListOfProductsByFilter() firstly and then call getPaginatedProducts() and return it too
      * */
+
 
 
 }

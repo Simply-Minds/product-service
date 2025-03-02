@@ -540,6 +540,7 @@ components:
           nullable: true
           example: null
         pagination:
+
             $ref: '#/components/schemas/PaginationDTO'
 
     CategoryResponseDTO:
@@ -579,6 +580,7 @@ components:
           example: null
         pagination:
           $ref: '#/components/schemas/PaginationDTO'
+
 
     ErrorResponseDTO:
       type: object
