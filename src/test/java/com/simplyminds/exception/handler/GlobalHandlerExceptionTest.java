@@ -1,11 +1,11 @@
 package com.simplyminds.exception.handler;
 
-import com.simplyminds.product.dto.ResponseDto;
+import com.simplyminds.common.dto.ResponseDto;
 import com.simplyminds.product.enums.ErrorCode;
-import com.simplyminds.product.exception.BadRequestException;
-import com.simplyminds.product.exception.NotFoundException;
-import com.simplyminds.product.exception.ResourceAlreadyExistException;
-import com.simplyminds.product.exception.handler.GlobalExceptionHandler;
+import com.simplyminds.common.exception.BadRequestException;
+import com.simplyminds.common.exception.NotFoundException;
+import com.simplyminds.common.exception.ResourceAlreadyExistException;
+import com.simplyminds.common.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

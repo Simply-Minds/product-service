@@ -4,24 +4,16 @@ import com.simplyminds.model.Product;
 import com.simplyminds.model.ProductListResponseDTO;
 import com.simplyminds.model.ProductResponseDTO;
 import com.simplyminds.model.SuccessResponseDTO;
-import com.simplyminds.product.entity.CategoryEntity;
 import com.simplyminds.product.entity.ProductEntity;
-import com.simplyminds.product.entity.ProductUnitEntity;
-import com.simplyminds.product.enums.ErrorCode;
-import com.simplyminds.product.exception.BadRequestException;
-import com.simplyminds.product.exception.NotFoundException;
-import com.simplyminds.product.exception.ResourceAlreadyExistException;
+import com.simplyminds.common.enums.ErrorCode;
+import com.simplyminds.common.exception.BadRequestException;
+import com.simplyminds.common.exception.NotFoundException;
+import com.simplyminds.common.exception.ResourceAlreadyExistException;
 import com.simplyminds.product.mapper.ProductMapper;
-import com.simplyminds.product.repository.CategoryRepository;
 import com.simplyminds.product.repository.ProductRepository;
-import com.simplyminds.product.repository.ProductUnitRepository;
-import com.simplyminds.product.service.ProductService;
-
-import com.simplyminds.product.service.impl.GenericServiceImpl;
 
 import com.simplyminds.product.service.impl.ProductServiceImpl;
 import com.simplyminds.product.service.ServiceHelper;
-import org.assertj.core.api.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,8 +35,6 @@ import java.util.Optional;
 
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
-
 
 
 @ExtendWith(MockitoExtension.class)
@@ -60,8 +50,6 @@ public class ProductServiceImplTest {
 
     private Product productDTO;
     private ProductEntity productEntity;
-    private CategoryEntity categoryEntity;
-    private ProductUnitEntity productUnitEntity;
     private ProductListResponseDTO productListResponseDTO;
 
     private SuccessResponseDTO successResponseDTO;
@@ -80,29 +68,12 @@ public class ProductServiceImplTest {
         productDTO.setPrice(100.0F);
         productDTO.setId(1);
 
-        categoryEntity = new CategoryEntity();
-        categoryEntity.setCategoryId(1L);
-        categoryEntity.setName("electric");
 
-        productUnitEntity = new ProductUnitEntity();
-        productUnitEntity.setProductUnitId(1L);
-        productUnitEntity.setUnitName("Kilogram");
-        productUnitEntity.setUnitSpec("kg");
-
-        categoryEntity = new CategoryEntity();
-        categoryEntity.setCategoryId(1L);
-        categoryEntity.setName("electric");
-
-        productUnitEntity = new ProductUnitEntity();
-        productUnitEntity.setProductUnitId(1L);
-        productUnitEntity.setUnitName("Kilogram");
-        productUnitEntity.setUnitSpec("kg");
 
         productEntity = new ProductEntity();
         productEntity.setSku("SKU123");
         productEntity.setName("Test Product");
         productEntity.setPrice(BigDecimal.valueOf(100.0));
-        productEntity.setCategoryEntity(categoryEntity);
 
         productEntity.setProductId(1L);// Now here we can assign it as default because the jpa will not work here
 
@@ -272,11 +243,8 @@ public class ProductServiceImplTest {
     @Test
     void testNullsFor_Update(){
 
-        Integer invalidId = null;
-
-
         BadRequestException exception = Assertions.assertThrows(BadRequestException.class, () -> {
-            productService.productsIdPut(invalidId,productDTO);
+            productService.productsIdPut(null,productDTO);
         });
 
         Assertions.assertEquals(ErrorCode.BAD0001.getCode(), exception.getErrorCode());

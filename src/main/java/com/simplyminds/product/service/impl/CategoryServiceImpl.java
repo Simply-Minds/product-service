@@ -2,9 +2,9 @@ package com.simplyminds.product.service.impl;
 
 import com.simplyminds.model.*;
 import com.simplyminds.product.entity.CategoryEntity;
-import com.simplyminds.product.enums.ErrorCode;
-import com.simplyminds.product.exception.NotFoundException;
-import com.simplyminds.product.exception.ResourceAlreadyExistException;
+import com.simplyminds.common.enums.ErrorCode;
+
+import com.simplyminds.common.exception.ResourceAlreadyExistException;
 import com.simplyminds.product.mapper.CategoryMapper;
 import com.simplyminds.product.repository.CategoryRepository;
 import com.simplyminds.product.service.CategoryService;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import com.simplyminds.common.service.impl.GenericServiceImpl;
 
 @Service
 public class CategoryServiceImpl extends GenericServiceImpl<CategoryEntity, CategoryRepository> implements CategoryService {
@@ -36,7 +37,6 @@ public class CategoryServiceImpl extends GenericServiceImpl<CategoryEntity, Cate
         if (repository.existsByName(categoryDTO.getName())) {
             throw new ResourceAlreadyExistException(ErrorCode.RES0001.getCode(),ErrorCode.RES0001.getMessage());
         }
-
         CategoryEntity categoryEntity = categoryMapper.categoryDTOToCategoryEntity(categoryDTO);
         CategoryEntity savedProduct = super.createObject(categoryEntity);
         return serviceHelper.setCategoryResponseDTO(savedProduct,true,null,null);

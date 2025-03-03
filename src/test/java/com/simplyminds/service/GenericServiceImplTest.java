@@ -1,12 +1,10 @@
 package com.simplyminds.service;
 
+import com.simplyminds.common.service.impl.GenericServiceImpl;
 import com.simplyminds.product.entity.CategoryEntity;
 import com.simplyminds.product.entity.ProductEntity;
-import com.simplyminds.product.service.impl.GenericServiceImpl;
-import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -22,7 +20,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
