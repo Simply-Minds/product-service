@@ -1,7 +1,7 @@
 package com.simplyminds.exception.handler;
 
 import com.simplyminds.common.dto.ResponseDto;
-import com.simplyminds.product.enums.ErrorCode;
+import com.simplyminds.common.enums.ErrorCode;
 import com.simplyminds.common.exception.BadRequestException;
 import com.simplyminds.common.exception.NotFoundException;
 import com.simplyminds.common.exception.ResourceAlreadyExistException;
