@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ProductService_OpenAPI_v1.0.0.yaml" type="SwaggerCodegen" editBeforeRun="true" show_console_on_std_err="false" show_console_on_std_out="false">
+    <option name="allowRunningInParallel" value="false" />
+    <option name="customTemplatesPath" value="" />
+    <option name="generateToPath" value="C:\Users\solan\IdeaProjects\product-service\src\main\gen" />
+    <option name="generationParameters">
+      <list />
+    </option>
+    <option name="generatorType" value="OPENAPI_GENERATOR_V7" />
+    <option name="jdkPath" value="C:\Program Files\JetBrains\IntelliJ IDEA 2024.3.4\jbr\bin\java.exe" />
+    <option name="language" value="java" />
+    <option name="projectPathOnTarget" />
+    <option name="selectedOptions">
+      <list />
+    </option>
+    <option name="specificationPath" value="C:\Users\solan\IdeaProjects\product-service\src\main\resources\openapi\ProductService_OpenAPI_v1.0.0.yaml" />
+    <method v="2" />
+  </configuration>
+</component>
