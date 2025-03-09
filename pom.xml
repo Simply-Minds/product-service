@@ -16,6 +16,12 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>com.simplyminds.common</groupId>
+			<artifactId>common-lib</artifactId>
+			<version>1.0.0</version>
+			<scope>compile</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>com.simplyminds.common</groupId>
