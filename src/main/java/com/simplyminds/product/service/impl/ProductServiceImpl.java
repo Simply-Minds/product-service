@@ -45,7 +45,8 @@ public class ProductServiceImpl extends GenericServiceImpl<ProductEntity, Produc
     @Override
     public SuccessResponseDTO productsIdDelete(Integer id) {
 
-        return serviceHelper.setSuccessResponseDto(super.DeleteObject(id),null,null);
+        super.deleteObject(id);
+        return serviceHelper.setSuccessResponseDto(true,null,null);
     }
     @Override
     public ProductResponseDTO productsIdPut(Integer id, Product productDTO) {

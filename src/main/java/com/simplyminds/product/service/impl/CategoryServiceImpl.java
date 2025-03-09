@@ -49,7 +49,8 @@ public class CategoryServiceImpl extends GenericServiceImpl<CategoryEntity, Cate
     }
     @Override
     public SuccessResponseDTO categoryIdDelete(Integer id) {
-        return serviceHelper.setSuccessResponseDto(super.DeleteObject(id),null,null);
+        super.deleteObject(id);
+        return serviceHelper.setSuccessResponseDto(true,null,null);
     }
     @Override
     public CategoryResponseDTO categoryIdPut(Integer id, Category categoryDTO) {

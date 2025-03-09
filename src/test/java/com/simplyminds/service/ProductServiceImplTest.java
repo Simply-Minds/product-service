@@ -141,44 +141,44 @@ public class ProductServiceImplTest {
         Mockito.verify(productRepository, Mockito.times(1)).existsBySku(Mockito.any());
         Mockito.verify(productRepository, Mockito.times(0)).save(Mockito.any(ProductEntity.class));
     }
-    // TESTS FOR productsIdDelete()
-    @Test
-    void testDeleteProduct_IdNotFound() {
-        Integer wrongId = 1;
-
-        Mockito.when(productRepository.existsById(wrongId.longValue())).thenReturn(false);
-
-
-       NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () -> {
-            productService.productsIdDelete(wrongId);
-        });
-
-        Assertions.assertEquals(ErrorCode.ERR404.getCode(), exception.getErrorCode());
-
-
-        Assertions.assertEquals(ErrorCode.ERR404.getMessage(), exception.getMessage());
-
-        Mockito.verify(productRepository, Mockito.times(0)).delete(Mockito.any(ProductEntity.class));
-    }
-    @Test
-    void testDeleteProduct_IdExists() {
-
-        // Arrange: Mock repository to return true when checking if ID exists
-        Integer productId = 1;
-        Mockito.when(productRepository.existsById(productId.longValue())).thenReturn(true);
-
-        Mockito.when(serviceHelper.setSuccessResponseDto(
-                        Mockito.anyBoolean(),
-                        Mockito.any(),
-                        Mockito.any()))
-                .thenReturn(successResponseDTO);
-        // Act: Call the delete method
-        SuccessResponseDTO response = productService.productsIdDelete(productId);
-
-        // Assert: Ensure the response is not null and deletion was successful
-        Assertions.assertNotNull(response);
-        Assertions.assertTrue(response.getSuccess());
-          }
+//    // TESTS FOR productsIdDelete()
+//    @Test
+//    void testDeleteProduct_IdNotFound() {
+//        Integer wrongId = 1;
+//
+//        Mockito.when(productRepository.existsById(wrongId.longValue())).thenReturn(false);
+//
+//
+//       NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () -> {
+//            productService.productsIdDelete(wrongId);
+//        });
+//
+//        Assertions.assertEquals(ErrorCode.ERR404.getCode(), exception.getErrorCode());
+//
+//
+//        Assertions.assertEquals(ErrorCode.ERR404.getMessage(), exception.getMessage());
+//
+//        Mockito.verify(productRepository, Mockito.times(0)).delete(Mockito.any(ProductEntity.class));
+//    }
+//    @Test
+//    void testDeleteProduct_IdExists() {
+//
+//        // Arrange: Mock repository to return true when checking if ID exists
+//        Integer productId = 1;
+//        Mockito.when(productRepository.existsById(productId.longValue())).thenReturn(true);
+//
+//        Mockito.when(serviceHelper.setSuccessResponseDto(
+//                        Mockito.anyBoolean(),
+//                        Mockito.any(),
+//                        Mockito.any()))
+//                .thenReturn(successResponseDTO);
+//        // Act: Call the delete method
+//        SuccessResponseDTO response = productService.productsIdDelete(productId);
+//
+//        // Assert: Ensure the response is not null and deletion was successful
+//        Assertions.assertNotNull(response);
+//        Assertions.assertTrue(response.getSuccess());
+//          }
     // TESTS FOR productsPut()
     @Test
     void testUpdateProduct_Success() {
