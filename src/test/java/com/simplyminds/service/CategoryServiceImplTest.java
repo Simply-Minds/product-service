@@ -171,33 +171,18 @@ public class CategoryServiceImplTest {
         Mockito.verify(categoryRepository,Mockito.times(0)).save(Mockito.any(CategoryEntity.class));
 
     }
-//    // Case 3. categoryIdDelete
-//    @Test
-//    void testCategoryIdDelete_Success(){
-//        Mockito.when(categoryRepository.existsById(1L)).thenReturn(true);
-//        Mockito.when(serviceHelper.setSuccessResponseDto(Mockito.anyBoolean(),Mockito.any(),Mockito.any())).thenReturn(successResponseDTO);
-//
-//        SuccessResponseDTO responseDTO = categoryService.categoryIdDelete(1);
-//
-//        Assertions.assertTrue(responseDTO.getSuccess());
-//
-//        Mockito.verify(categoryRepository,Mockito.times(1)).existsById(Mockito.any(Long.class));
-//    }
-//    // test for NotFound
-//    @Test
-//    void testCategoryIdDelete_NotFound(){
-//        Mockito.when(categoryRepository.existsById(1L)).thenReturn(false);
-//
-//        NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () -> {
-//            categoryService.categoryIdDelete(1);
-//        });
-//
-//        Assertions.assertEquals(exception.getMessage(),ErrorCode.ERR404.getMessage());
-//        Assertions.assertEquals(exception.getErrorCode(),ErrorCode.ERR404.getCode());
-//
-//        Mockito.verify(categoryRepository,Mockito.times(1)).existsById(Mockito.any());
-//        Mockito.verify(categoryRepository,Mockito.times(0)).save(Mockito.any(CategoryEntity.class));
-//    }
+    // Case 3. categoryIdDelete
+    @Test
+    void testCategoryIdDelete_Success(){
+
+        Mockito.when(serviceHelper.setSuccessResponseDto(Mockito.anyBoolean(),Mockito.any(),Mockito.any())).thenReturn(successResponseDTO);
+
+        SuccessResponseDTO responseDTO = categoryService.categoryIdDelete(1);
+
+        Assertions.assertTrue(responseDTO.getSuccess());
+
+        Mockito.verify(categoryRepository,Mockito.times(1)).deleteById(Mockito.any(Long.class));
+    }
 
     // Case 4. categoryIdGet
     @Test

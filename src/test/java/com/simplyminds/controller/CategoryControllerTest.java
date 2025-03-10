@@ -41,43 +41,30 @@ class CategoryControllerTest {
         categoryResponseDTO = new CategoryResponseDTO();
         categoryResponseDTO.setData(category);
     }
-//
-//    @Test
-//    void testCreatCategory() {
-//        Mockito.when(categoryService.categoryIdGet(1)).thenReturn(categoryResponseDTO);
-//        ResponseEntity<CategoryResponseDTO> responseEntity = categoryController.categoriesPost(category);
-//        Assertions.assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
-//        Assertions.assertEquals(categoryResponseDTO, responseEntity.getBody());
-//        Mockito.verify(categoryService).categoryIdGet(1);
-//    }
 
-//    @Test
-//    void testProductsIdDeleteForTrueCase(){
-//        // test case for true case when the getSuccess() returns true .
-//        // Which mean our methode going to return the .OK status.
-//        successResponseDTO = new SuccessResponseDTO();
-//        successResponseDTO.setSuccess(true);
-//        Mockito.when(categoryService.categoryIdDelete(1)).thenReturn(successResponseDTO);
-//        ResponseEntity<SuccessResponseDTO> responseEntity = categoryController.categoriesIdDelete(1);
-//        Assertions.assertEquals(true,responseEntity.getBody().getSuccess());
-//        Assertions.assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
-//        Assertions.assertEquals(successResponseDTO,responseEntity.getBody());
-//        Mockito.verify(categoryService).categoryIdDelete(1);
-//    }
-//
-//    @Test
-//    void testCategoriesIdDeleteForFalseCase(){
-//        // test case for false case when the getSuccess() returns false .
-//        // Which mean our methode going to return the .OK status.
-//        successResponseDTO = new SuccessResponseDTO();
-//        successResponseDTO.setSuccess(false);
-//        Mockito.when(categoryService.categoryIdDelete(1)).thenReturn(successResponseDTO);
-//        ResponseEntity<SuccessResponseDTO> responseEntity = categoryController.categoriesIdDelete(1);
-//        Assertions.assertEquals(HttpStatus.NOT_FOUND,responseEntity.getStatusCode());
-//        Assertions.assertEquals(false, responseEntity.getBody().getSuccess());
-//        Assertions.assertEquals(successResponseDTO,responseEntity.getBody());
-//        Mockito.verify(categoryService).categoryIdDelete(1);
-//    }
+    @Test
+    void testCreatCategory() {
+
+        Mockito.when(categoryService.createCategory(Mockito.any(Category.class))).thenReturn(categoryResponseDTO);
+        ResponseEntity<CategoryResponseDTO> responseEntity = categoryController.categoriesPost(category);
+        Assertions.assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+        Assertions.assertEquals(categoryResponseDTO, responseEntity.getBody());
+        Mockito.verify(categoryService).createCategory(Mockito.any(Category.class));
+    }
+
+    @Test
+    void testProductsIdDeleteForTrueCase(){
+        // test case for true case when the getSuccess() returns true .
+        // Which mean our methode going to return the .OK status.
+        successResponseDTO = new SuccessResponseDTO();
+        successResponseDTO.setSuccess(true);
+        Mockito.when(categoryService.categoryIdDelete(1)).thenReturn(successResponseDTO);
+        ResponseEntity<SuccessResponseDTO> responseEntity = categoryController.categoriesIdDelete(1);
+        Assertions.assertEquals(true,responseEntity.getBody().getSuccess());
+        Assertions.assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
+        Assertions.assertEquals(successResponseDTO,responseEntity.getBody());
+        Mockito.verify(categoryService).categoryIdDelete(1);
+    }
 
     //test case for put methode and then for list of products and then get one product and then we will write test cases for service
 
