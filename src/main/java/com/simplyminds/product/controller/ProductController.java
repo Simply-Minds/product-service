@@ -1,6 +1,7 @@
 package com.simplyminds.product.controller;
 
 import com.simplyminds.api.ProductsApi;
+import com.simplyminds.common.exception.NotFoundException;
 import com.simplyminds.model.Product;
 import com.simplyminds.model.ProductListResponseDTO;
 import com.simplyminds.model.ProductResponseDTO;
@@ -77,15 +78,20 @@ public class ProductController implements ProductsApi {
         return ResponseEntity.status(HttpStatus.OK).body(productResponseDTO);
     }
     /**
-     * get a product by product id.
+     * get a roduct by product id.
      *
      * @param id the ID of product to be retrieved
      * @return the ProductResponseDTO with updated details
      */
     @Override
     public ResponseEntity<ProductResponseDTO> productsIdGet(Integer id) {
-    ProductResponseDTO productResponseDTO = productService.productsIdGet(id);
-    return ResponseEntity.status(HttpStatus.OK).body(productResponseDTO);
+        try {
+            ProductResponseDTO productResponseDTO = productService.productsIdGet(id);
+            return ResponseEntity.status(HttpStatus.OK).body(productResponseDTO);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
+
 
 }

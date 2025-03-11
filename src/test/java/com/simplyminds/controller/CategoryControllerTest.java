@@ -64,9 +64,7 @@ class CategoryControllerTest {
         Assertions.assertEquals(HttpStatus.OK,responseEntity.getStatusCode());
         Assertions.assertEquals(successResponseDTO,responseEntity.getBody());
         Mockito.verify(categoryService).categoryIdDelete(1);
-    }
-
-    //test case for put methode and then for list of products and then get one product and then we will write test cases for service
+    }//test case for put methode and then for list of products and then get one product and then we will write test cases for service
 
     @Test
     void testProductsIdPut(){
