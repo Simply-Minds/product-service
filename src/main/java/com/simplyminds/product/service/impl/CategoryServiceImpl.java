@@ -1,5 +1,7 @@
 package com.simplyminds.product.service.impl;
 
+import com.simplyminds.common.exception.BadRequestException;
+import com.simplyminds.common.exception.NotFoundException;
 import com.simplyminds.model.*;
 import com.simplyminds.product.entity.CategoryEntity;
 import com.simplyminds.common.enums.ErrorCode;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import com.simplyminds.common.service.impl.GenericServiceImpl;
+import org.springframework.web.client.HttpServerErrorException;
 
 @Service
 public class CategoryServiceImpl extends GenericServiceImpl<CategoryEntity, CategoryRepository> implements CategoryService {
@@ -51,6 +54,7 @@ public class CategoryServiceImpl extends GenericServiceImpl<CategoryEntity, Cate
     public SuccessResponseDTO categoryIdDelete(Integer id) {
         super.deleteObject(id);
         return serviceHelper.setSuccessResponseDto(true,null,null);
+
     }
     @Override
     public CategoryResponseDTO categoryIdPut(Integer id, Category categoryDTO) {

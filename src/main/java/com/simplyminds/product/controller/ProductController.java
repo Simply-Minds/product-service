@@ -85,12 +85,10 @@ public class ProductController implements ProductsApi {
      */
     @Override
     public ResponseEntity<ProductResponseDTO> productsIdGet(Integer id) {
-        try {
+
             ProductResponseDTO productResponseDTO = productService.productsIdGet(id);
             return ResponseEntity.status(HttpStatus.OK).body(productResponseDTO);
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+
     }
 
 

@@ -1,6 +1,8 @@
 package com.simplyminds.product.controller;
 
 import com.simplyminds.api.CategoriesApi;
+import com.simplyminds.common.exception.BadRequestException;
+import com.simplyminds.common.exception.NotFoundException;
 import com.simplyminds.model.*;
 import com.simplyminds.product.service.CategoryService;
 
@@ -42,8 +44,8 @@ public class CategoryController implements CategoriesApi {
 
     @Override
     public ResponseEntity<SuccessResponseDTO> categoriesIdDelete(Integer id) {
-       SuccessResponseDTO successResponseDTO = categoryService.categoryIdDelete(id);
-       return ResponseEntity.status(HttpStatus.OK).body(successResponseDTO);
+        SuccessResponseDTO successResponseDTO = categoryService.categoryIdDelete(id);
+        return ResponseEntity.status(HttpStatus.OK).body(successResponseDTO);
     }
 
     @Override
