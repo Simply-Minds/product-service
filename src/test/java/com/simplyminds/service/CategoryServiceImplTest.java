@@ -4,15 +4,13 @@ package com.simplyminds.service;
 import com.simplyminds.model.*;
 import com.simplyminds.product.entity.CategoryEntity;
 import com.simplyminds.product.entity.ProductEntity;
-import com.simplyminds.product.enums.ErrorCode;
-import com.simplyminds.product.exception.NotFoundException;
-import com.simplyminds.product.exception.ResourceAlreadyExistException;
+import com.simplyminds.common.enums.ErrorCode;
+import com.simplyminds.common.exception.NotFoundException;
+import com.simplyminds.common.exception.ResourceAlreadyExistException;
 import com.simplyminds.product.mapper.CategoryMapper;
 import com.simplyminds.product.repository.CategoryRepository;
 import com.simplyminds.product.service.ServiceHelper;
 import com.simplyminds.product.service.impl.CategoryServiceImpl;
-import com.simplyminds.product.service.impl.GenericServiceImpl;
-import org.hibernate.boot.model.source.spi.AssociationSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
-import java.util.ArrayList.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -177,29 +174,14 @@ public class CategoryServiceImplTest {
     // Case 3. categoryIdDelete
     @Test
     void testCategoryIdDelete_Success(){
-        Mockito.when(categoryRepository.existsById(1L)).thenReturn(true);
+
         Mockito.when(serviceHelper.setSuccessResponseDto(Mockito.anyBoolean(),Mockito.any(),Mockito.any())).thenReturn(successResponseDTO);
 
         SuccessResponseDTO responseDTO = categoryService.categoryIdDelete(1);
 
         Assertions.assertTrue(responseDTO.getSuccess());
 
-        Mockito.verify(categoryRepository,Mockito.times(1)).existsById(Mockito.any(Long.class));
-    }
-    // test for NotFound
-    @Test
-    void testCategoryIdDelete_NotFound(){
-        Mockito.when(categoryRepository.existsById(1L)).thenReturn(false);
-
-        NotFoundException exception = Assertions.assertThrows(NotFoundException.class, () -> {
-            categoryService.categoryIdDelete(1);
-        });
-
-        Assertions.assertEquals(exception.getMessage(),ErrorCode.ERR404.getMessage());
-        Assertions.assertEquals(exception.getErrorCode(),ErrorCode.ERR404.getCode());
-
-        Mockito.verify(categoryRepository,Mockito.times(1)).existsById(Mockito.any());
-        Mockito.verify(categoryRepository,Mockito.times(0)).save(Mockito.any(CategoryEntity.class));
+        Mockito.verify(categoryRepository,Mockito.times(1)).deleteById(Mockito.any(Long.class));
     }
 
     // Case 4. categoryIdGet
